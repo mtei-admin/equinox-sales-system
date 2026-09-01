@@ -1,0 +1,106 @@
+---
+
+description: "Security and authorization rules for the Equinox application"
+globs: ["app/**/*.ts", "app/**/*.tsx", "lib/**/*.ts", "supabase/**/*.sql"]
+alwaysApply: false
+------------------
+
+# Equinox Security Rules
+
+## Authentication
+
+Use Supabase Auth.
+
+Never implement custom plaintext-password authentication.
+
+Never store user passwords in the application database.
+
+## Authorization
+
+Equinox roles:
+
+* ADMIN
+* SALES
+* WAREHOUSE
+* ACCOUNTING
+
+Permissions:
+
+### ADMIN
+
+Full access.
+
+### SALES
+
+Can create/edit:
+
+* Sales Orders
+* Invoices
+* ATW/DR
+
+Can view relevant records.
+
+Cannot create/edit Withdrawal Slips.
+
+### WAREHOUSE
+
+Can create/edit:
+
+* Withdrawal Slips
+
+Can view:
+
+* Sales Orders
+* Invoices
+* ATW/DR
+
+### ACCOUNTING
+
+View only.
+
+## Authorization Enforcement
+
+Authorization must exist at multiple levels where appropriate:
+
+1. UI
+2. Server-side application logic
+3. Database RLS
+
+Never consider a hidden button to be security.
+
+## Sensitive Operations
+
+The following require server-side authorization:
+
+* creating documents
+* editing documents
+* cancelling documents
+* allocating quantities
+* creating Withdrawal Slips
+* changing document status
+* modifying master data
+* managing users
+
+## Secrets
+
+Never expose:
+
+* service role keys
+* database passwords
+* private API keys
+* signing secrets
+
+to browser/client code.
+
+Only public Supabase client configuration may be exposed to the browser.
+
+## Logging
+
+Do not log:
+
+* passwords
+* authentication tokens
+* private keys
+* sensitive personal information
+
+Log enough information to diagnose application errors without exposing secrets.

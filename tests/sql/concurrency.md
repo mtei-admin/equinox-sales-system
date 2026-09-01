@@ -1,0 +1,9 @@
+-- Verified in tests/sql/validate_invoice.sql, validate_atw.sql, and validate_ws.sql
+-- (function bodies contain FOR UPDATE; last remaining unit / second WS cannot be allocated twice).
+-- For a live two-session check against local/staging Postgres after applying migrations:
+-- 1) Two sessions: create_invoice for the last remaining unit — one must fail.
+-- 2) Two sessions: create_atw_document for the last remaining invoice unit — one must fail.
+-- 3) Two sessions: create_withdrawal_slip for the same released ATW — one must fail with unique/active slip.
+--    Automated in validate_ws.sql via dblink (two sessions, one succeeds).
+-- 4) cancel_withdrawal_slip then create_withdrawal_slip again — must succeed.
+-- 5) accounting JWT calling create_sales_order — must raise Not authorized.

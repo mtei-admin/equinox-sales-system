@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --color-eq-ink: #0b1f33;
+  --color-eq-navy: #12344d;
+  --color-eq-slate: #3d5568;
+  --color-eq-mist: #eef3f7;
+  --color-eq-line: #d5e0e8;
+  --color-eq-amber: #c58a2a;
+  --color-eq-amber-soft: #f4e6c8;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-eq-mist);
+  color: var(--color-eq-ink);
+}
+
+::selection {
+  background: var(--color-eq-amber-soft);
+}

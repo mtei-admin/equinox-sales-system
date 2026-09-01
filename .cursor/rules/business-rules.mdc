@@ -1,0 +1,164 @@
+---
+
+description: "Equinox document workflow, quantity control, status and business rules"
+alwaysApply: true
+-----------------
+
+# Equinox Business Rules
+
+## Document Chain
+
+The document chain is:
+
+Sales Order
+→ Invoice
+→ ATW / Delivery Receipt
+→ Withdrawal Slip
+
+## Sales Order
+
+A Sales Order contains:
+
+* Customer
+* Delivery Address
+* Order Date
+* Term
+* Reference Number
+* Order Type
+* Sales Employee
+* Items
+* Quantities
+* Unit Prices
+* Remarks
+* Status
+
+Sales Order Items must reference an Item Master record.
+
+## Invoice
+
+An Invoice is created from a Sales Order.
+
+The system must copy the relevant Sales Order information into the Invoice.
+
+Customer and item information that is intended to be historical must be stored as a transaction snapshot.
+
+An Invoice may contain only quantities that remain available from the originating Sales Order.
+
+### Quantity Rule
+
+For every Sales Order Item:
+
+Remaining Invoice Quantity =
+Sales Order Quantity
+--------------------
+
+Total quantities already invoiced for that Sales Order Item
+
+The system must reject an Invoice quantity greater than the remaining quantity.
+
+Multiple Invoices are allowed for one Sales Order.
+
+## ATW / Delivery Receipt
+
+An ATW/DR is created from an Invoice.
+
+It may contain only quantities remaining from the Invoice.
+
+### Quantity Rule
+
+Remaining ATW/DR Quantity =
+Invoice Quantity
+----------------
+
+Total quantities already allocated to ATW/DR documents
+
+The system must reject an ATW/DR quantity greater than the remaining quantity.
+
+Multiple ATW/DR documents are allowed for one Invoice.
+
+## Withdrawal Slip
+
+A Withdrawal Slip is created from an ATW/DR.
+
+There must be exactly zero or one Withdrawal Slip associated with an ATW/DR.
+
+Once an ATW/DR has a Withdrawal Slip, another Withdrawal Slip must not be created.
+
+### Critical Rule
+
+The one-Withdrawal-Slip-per-ATW/DR rule must not depend only on the UI.
+
+It must be enforced server-side and preferably at the database level.
+
+## Status
+
+Use explicit status transitions.
+
+Do not allow arbitrary status changes.
+
+Suggested Sales Order statuses (approved):
+
+* draft
+* open
+* closed
+* cancelled
+
+Suggested Invoice statuses (approved):
+
+* draft
+* posted
+* cancelled
+
+Suggested ATW/DR statuses (approved):
+
+* draft
+* released
+* cancelled
+
+Suggested Withdrawal Slip statuses (approved):
+
+* draft
+* issued
+* cancelled
+
+Master data / user status: `active`, `inactive`.
+
+## Cancellation
+
+Cancellation must not physically delete transactional documents.
+
+Cancellation should:
+
+* change status
+* record cancellation user
+* record cancellation timestamp
+* record cancellation reason
+
+## Editing
+
+Editing permissions depend on document status and user role.
+
+Once a downstream document exists, upstream transactional data must be protected from changes that would invalidate the downstream documents.
+
+Never allow a user to change quantities in an upstream document in a way that causes:
+
+* Invoice quantity > SO quantity
+* ATW/DR quantity > Invoice quantity
+* Withdrawal Slip quantity > ATW/DR quantity
+
+## Master Data
+
+Customers and Items are master data.
+
+Master-data changes must not rewrite historical transaction snapshots.
+
+## ATW and Delivery Receipt
+
+Unless later requirements establish materially different behavior, treat ATW and Delivery Receipt as one document subsystem with a `document_type` field.
+
+Possible values:
+
+* ATW
+* DR
+
+Do not create separate duplicated business logic for ATW and DR unless required.

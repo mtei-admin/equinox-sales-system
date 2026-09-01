@@ -1,0 +1,144 @@
+---
+
+description: "Core architecture and development rules for the Equinox Sales and Ordering System"
+alwaysApply: true
+-----------------
+
+# Equinox Sales and Ordering System
+
+## Project
+
+This is a production-oriented web-based Sales and Ordering System for Equinox.
+
+The application manages this document workflow:
+
+Customer
+→ Sales Order
+→ Invoice
+→ ATW / Delivery Receipt
+→ Withdrawal Slip
+
+Business relationships:
+
+* One Sales Order can create multiple Invoices.
+* One Invoice can create multiple ATW/Delivery Receipt documents.
+* One ATW/Delivery Receipt can create exactly one Withdrawal Slip.
+* Sales Order Items originate from the Items Master Data.
+* Invoice Items originate from Sales Order Items.
+* ATW/DR Items originate from Invoice Items.
+* Withdrawal Slip Items originate from ATW/DR Items.
+
+## Technology
+
+Use:
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* Supabase
+* PostgreSQL
+* Supabase Auth
+* PostgreSQL Row Level Security
+* Zod for validation
+* Git/GitHub
+
+Do not introduce another framework or database unless explicitly requested.
+
+## General Rules
+
+1. Do not invent business requirements.
+2. Do not silently change business rules.
+3. If a requirement is ambiguous and materially affects data integrity, ask for clarification.
+4. Prefer simple, maintainable solutions over clever abstractions.
+5. Use TypeScript strict mode.
+6. Avoid `any`.
+7. Use reusable components where appropriate.
+8. Keep business logic out of presentational components.
+9. Validate user input on the server.
+10. Critical business rules must also be enforced at the database level where practical.
+11. Never rely solely on hiding a button for authorization.
+12. Never store plaintext passwords.
+13. Never commit secrets or API keys.
+14. Never modify an existing migration. Create a new migration.
+15. Never delete production data as part of a normal workflow.
+16. Preserve transactional history.
+
+## Database
+
+PostgreSQL is the source of truth.
+
+Use UUID primary keys for internal database identifiers unless there is a documented reason not to.
+
+Human-readable document numbers are separate from internal IDs.
+
+Use foreign keys for relationships.
+
+Use appropriate indexes for:
+
+* foreign keys
+* document numbers
+* barcode
+* customer ID
+* status
+* dates
+* frequently searched fields
+
+Use database constraints for important invariants.
+
+## Transactional Documents
+
+Transactional records must preserve historical information.
+
+Do not dynamically replace historical customer or item information with current master-data values when displaying historical documents.
+
+Example:
+
+An old Invoice must retain the customer name/address that was captured when the Invoice was created even if the Customer Master Data changes later.
+
+## Audit
+
+Transactional tables should support:
+
+* created_by
+* created_at
+* updated_by
+* updated_at
+
+Where cancellation is supported, also support:
+
+* cancelled_by
+* cancelled_at
+* cancellation_reason
+
+## Development Workflow
+
+Before implementing a major feature:
+
+1. Inspect the existing code.
+2. Inspect the database schema.
+3. Inspect relevant migrations.
+4. Inspect related business logic.
+5. Explain the proposed change.
+6. Implement the smallest coherent change.
+7. Run validation/tests.
+8. Report what changed and what was tested.
+
+Do not rewrite unrelated code.
+
+## Completion Requirement
+
+A feature is not considered complete merely because the UI works.
+
+A completed feature should include, where applicable:
+
+* UI
+* server-side validation
+* database validation
+* authorization
+* error handling
+* tests
+* loading states
+* empty states
+* documentation
+* migration if schema changes are required

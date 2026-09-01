@@ -1,0 +1,125 @@
+---
+
+description: "PostgreSQL and Supabase database standards for Equinox"
+globs: ["supabase/**/*.sql", "supabase/**/*.ts", "lib/**/*.ts"]
+alwaysApply: false
+------------------
+
+# Equinox Database Rules
+
+## Database
+
+Use PostgreSQL through Supabase.
+
+The database is the source of truth.
+
+## Migrations
+
+All schema changes must be implemented through migrations.
+
+Never modify an already-applied migration.
+
+Create a new migration for changes.
+
+Migration names should describe the change, for example:
+
+202609010001_create_customers.sql
+
+202609010002_create_items.sql
+
+202609010003_create_sales_orders.sql
+
+## Relationships
+
+Use foreign keys.
+
+Required relationship chain:
+
+customers
+→ sales_orders
+→ invoices
+→ atw_dr
+→ withdrawal_slips
+
+Line-item relationships:
+
+sales_orders
+→ sales_order_items
+
+invoices
+→ invoice_items
+
+atw_dr
+→ atw_dr_items
+
+withdrawal_slips
+→ withdrawal_slip_items
+
+## IDs
+
+Use UUID primary keys for internal IDs.
+
+Use separate human-readable document numbers.
+
+Examples:
+
+SO-2026-000001
+INV-2026-000001
+ATW-2026-000001
+DR-2026-000001
+WS-2026-000001
+
+Invoice numbers entered from pre-printed invoices must remain user-entered.
+
+## Constraints
+
+Use:
+
+* NOT NULL
+* UNIQUE
+* CHECK
+* FOREIGN KEY
+* appropriate indexes
+
+for data integrity.
+
+Do not depend exclusively on application code for critical constraints.
+
+## Security
+
+Enable Row Level Security on application tables.
+
+Create explicit policies.
+
+Do not create overly broad policies such as:
+
+USING (true)
+
+for authenticated users unless there is a documented reason.
+
+## Business Logic
+
+Critical quantity calculations must be performed consistently and safely.
+
+When multiple users can create documents concurrently, protect quantity allocation against race conditions.
+
+Prefer database transactions or server-side RPC functions for operations that:
+
+1. check remaining quantity
+2. create document
+3. create line items
+4. update status
+
+These operations should be atomic.
+
+## Deletion
+
+Do not use cascading deletes for transactional documents unless explicitly approved.
+
+Historical documents must remain traceable.
+
+Prefer cancellation/soft deletion for transactions.
+
+## Seed Data
+
+Development seed data must never contain real production customer information unless explicitly provided for that purpose.

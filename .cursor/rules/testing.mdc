@@ -1,0 +1,67 @@
+---
+
+description: "Testing and quality requirements for Equinox"
+globs: ["**/*.test.*", "**/*.spec.*", "tests/**"]
+alwaysApply: false
+------------------
+
+# Equinox Testing Rules
+
+## Critical Business Tests
+
+Always test:
+
+### Sales Order → Invoice
+
+* one SO can create multiple invoices
+* invoice cannot exceed remaining SO quantity
+* fully invoiced SO cannot create additional quantity
+* partial invoicing works correctly
+
+### Invoice → ATW/DR
+
+* one Invoice can create multiple ATW/DR documents
+* ATW/DR cannot exceed remaining invoice quantity
+* fully allocated invoice cannot allocate additional quantity
+* partial allocation works correctly
+
+### ATW/DR → Withdrawal Slip
+
+* one ATW/DR can create one WS
+* second WS creation is rejected
+* WS quantity cannot exceed ATW/DR quantity
+
+### Authorization
+
+Test every role:
+
+* ADMIN
+* SALES
+* WAREHOUSE
+* ACCOUNTING
+
+Verify permissions server-side, not only through UI.
+
+### Cancellation
+
+Verify:
+
+* cancelled documents cannot be used incorrectly
+* cancellation reason is recorded
+* cancelled transactions remain in history
+
+## Regression
+
+After changing business logic, run all related tests.
+
+## Before Completion
+
+Run:
+
+* lint
+* typecheck
+* unit tests
+* integration tests where applicable
+* production build
+
+Do not claim a feature is complete if the production build fails.

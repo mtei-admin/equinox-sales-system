@@ -1,0 +1,25 @@
+Frontend
+└── Next.js
+    ├── React
+    ├── TypeScript
+    └── Tailwind CSS
+
+Backend
+└── Supabase
+    ├── PostgreSQL
+    ├── Authentication
+    ├── Row Level Security
+    └── Storage if required
+
+Development
+└── Cursor
+    ├── Agent
+    ├── Project Rules
+    └── Git
+
+Deployment
+├── Vercel
+└── Supabase Cloud
+
+Repository
+└── GitHub

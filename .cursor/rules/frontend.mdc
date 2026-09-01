@@ -1,0 +1,106 @@
+---
+
+description: "Frontend UI and UX standards for Equinox"
+globs: ["app/**/*.tsx", "components/**/*.tsx"]
+alwaysApply: false
+------------------
+
+# Equinox Frontend Rules
+
+## Design
+
+Build a professional business application.
+
+Prioritize:
+
+* clarity
+* speed
+* readability
+* consistent spacing
+* keyboard usability
+* responsive design
+
+Avoid unnecessary animations.
+
+## Forms
+
+Forms should:
+
+* clearly label fields
+* show validation errors
+* preserve entered values when possible
+* disable duplicate submissions
+* show saving/loading states
+* clearly distinguish editable and read-only fields
+
+## Transaction Forms
+
+Fields inherited from previous documents should be visually identifiable as read-only.
+
+Examples:
+
+Invoice:
+
+* Customer ID: hidden/internal
+* Customer Name: read-only
+* Item Name: read-only
+* Sales Order reference: read-only
+
+ATW/DR:
+
+* Customer ID: hidden/internal
+* Customer Name: read-only
+* Invoice ID: read-only
+* Item Name: read-only
+
+Withdrawal Slip:
+
+* Customer ID: hidden/internal
+* Customer Name: read-only
+* Invoice ID: read-only
+* ATW/DR ID: read-only
+* Item Name: read-only
+
+## Tables
+
+Transaction line-item tables should support:
+
+* adding items
+* editing permitted fields
+* deleting draft lines
+* quantity validation
+* calculated amounts
+* totals
+
+## Destructive Actions
+
+Cancellation and other destructive actions require confirmation.
+
+Never use browser `alert()` for normal business interactions.
+
+Use consistent modal/dialog components.
+
+## Responsive Design
+
+The application must work on:
+
+* desktop
+* laptop
+* tablet
+* mobile
+
+Warehouse workflows should be particularly usable on mobile devices.
+
+## Accessibility
+
+Use semantic HTML.
+
+Ensure:
+
+* keyboard navigation
+* visible focus states
+* readable labels
+* accessible dialogs
+* appropriate ARIA attributes where required
+
+Do not use color alone to communicate status.
