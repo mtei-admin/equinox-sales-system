@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { LoginForm } from "@/components/login-form";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const configured = isSupabaseConfigured();
 
@@ -17,11 +19,10 @@ export default function LoginPage() {
           </Suspense>
         ) : (
           <p className="mt-6 rounded-md bg-eq-mist p-3 text-sm text-eq-slate">
-            Configure <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+            Set <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
             <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> in{" "}
-            <code className="font-mono">.env.local</code> from <code className="font-mono">.env.example</code>, then
-            apply <code className="font-mono">supabase/migrations</code>. Sign-up is disabled; an administrator invites
-            users.
+            <code className="font-mono">.env.local</code> for local, or in Vercel Settings → Environment Variables, then
+            redeploy. Sign-up is disabled; an administrator invites users.
           </p>
         )}
       </div>
