@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { DataTable, EmptyState } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 import { Can } from "@/components/can";
@@ -64,9 +65,9 @@ export function SalesOrderSnapshotTable({
       {more ? (
         <p className="border-t border-eq-line px-4 py-3 text-sm text-eq-slate">
           Showing {PREVIEW} of {total}.{" "}
-          <a className="text-eq-navy underline" href="/sales-orders">
+          <Link className="text-eq-navy underline" href="/sales-orders">
             View all sales orders
-          </a>
+          </Link>
         </p>
       ) : null}
     </div>
@@ -109,9 +110,9 @@ export function InvoiceSnapshotTable({
       {more ? (
         <p className="border-t border-eq-line px-4 py-3 text-sm text-eq-slate">
           Showing {PREVIEW} of {total}.{" "}
-          <a className="text-eq-navy underline" href="/invoices">
+          <Link className="text-eq-navy underline" href="/invoices">
             View all invoices
-          </a>
+          </Link>
         </p>
       ) : null}
     </div>
@@ -169,9 +170,9 @@ export function AtwSnapshotTable({
       {more ? (
         <p className="border-t border-eq-line px-4 py-3 text-sm text-eq-slate">
           Showing {PREVIEW} of {total}.{" "}
-          <a className="text-eq-navy underline" href="/atw-dr">
+          <Link className="text-eq-navy underline" href="/atw-dr">
             View all ATW/DR
-          </a>
+          </Link>
         </p>
       ) : null}
     </div>
@@ -212,9 +213,9 @@ export function SlipSnapshotTable({
       {more ? (
         <p className="border-t border-eq-line px-4 py-3 text-sm text-eq-slate">
           Showing {PREVIEW} of {total}.{" "}
-          <a className="text-eq-navy underline" href="/withdrawal-slips">
+          <Link className="text-eq-navy underline" href="/withdrawal-slips">
             View all withdrawal slips
-          </a>
+          </Link>
         </p>
       ) : null}
     </div>
