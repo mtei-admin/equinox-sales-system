@@ -9,6 +9,7 @@ const CASES: { path: string; allowed: UserRole[] }[] = [
   { path: "/users", allowed: ["admin"] },
   { path: "/users/abc", allowed: ["admin"] },
   { path: "/api/users/invite", allowed: ["admin"] },
+  { path: "/api/users/reset-password", allowed: ["admin"] },
   { path: "/customers", allowed: ["admin", "sales", "warehouse", "accounting"] },
   { path: "/customers/new", allowed: ["admin", "sales"] },
   { path: "/customers/abc/edit", allowed: ["admin", "sales"] },

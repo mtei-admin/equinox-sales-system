@@ -24,6 +24,7 @@
 - Totals: amount = qty × price; invoice total_amount = amount + tax; header sums.
 - Reports remaining SO qty uses non-cancelled invoice qty; remaining invoice qty uses non-cancelled ATW/DR qty; ATW awaiting a slip has no non-cancelled withdrawal slip.
 - Dashboard views: admin full; sales documents + pending; warehouse ATW pending withdrawal + slips; accounting read-only overview without action links.
+- Only admin may reset a user password; new password must be at least 8 characters and match confirmation.
 
 ## Must-have (SQL / staging — after `supabase db push`)
 

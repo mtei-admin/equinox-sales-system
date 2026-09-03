@@ -13,6 +13,7 @@ const ROUTE_RULES: RouteRule[] = [
   { prefix: "/api/health", access: "public" },
   { prefix: "/api/auth/sign-out", access: "public" },
   { prefix: "/api/users/invite", access: "users.manage" },
+  { prefix: "/api/users/reset-password", access: "users.manage" },
   { prefix: "/users", access: "users.manage" },
   { prefix: "/customers/new", access: "customers.write" },
   { prefix: "/customers", access: "customers.read" },

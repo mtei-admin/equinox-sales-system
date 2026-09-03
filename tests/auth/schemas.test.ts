@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inviteUserSchema, loginSchema, profileSchema, userAccessSchema } from "@/lib/validation/schemas";
+import { inviteUserSchema, loginSchema, profileSchema, userAccessSchema, resetPasswordSchema } from "@/lib/validation/schemas";
 
 describe("auth schemas", () => {
   it("accepts a valid invite for each role", () => {
@@ -69,5 +69,30 @@ describe("auth schemas", () => {
   it("login requires an email", () => {
     expect(loginSchema.safeParse({ email: "not-an-email", password: "x" }).success).toBe(false);
     expect(loginSchema.safeParse({ email: "user@equinox.local", password: "x" }).success).toBe(true);
+  });
+
+  it("admin password reset requires matching passwords of at least 8 characters", () => {
+    const user_id = "00000000-0000-4000-8000-000000000001";
+    expect(
+      resetPasswordSchema.safeParse({
+        user_id,
+        password: "password1",
+        confirm_password: "password1",
+      }).success,
+    ).toBe(true);
+    expect(
+      resetPasswordSchema.safeParse({
+        user_id,
+        password: "short",
+        confirm_password: "short",
+      }).success,
+    ).toBe(false);
+    expect(
+      resetPasswordSchema.safeParse({
+        user_id,
+        password: "password1",
+        confirm_password: "password2",
+      }).success,
+    ).toBe(false);
   });
 });

@@ -58,7 +58,8 @@ export function UserEditForm({ user }: { user: UserRow }) {
           </select>
         </FormField>
         <p className="sm:col-span-2 text-sm text-eq-slate">
-          Passwords stay in Supabase Auth. Inactivate a user to block sign-in without deleting the account.
+          Passwords stay in Supabase Auth. Use Reset password below to set a new one. Inactivate a user to block
+          sign-in without deleting the account.
         </p>
         {error ? <p className="sm:col-span-2 text-sm text-rose-700">{error}</p> : null}
         {message ? <p className="sm:col-span-2 text-sm text-emerald-800">{message}</p> : null}

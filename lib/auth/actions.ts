@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { AuthError, assertPermission, requireProfile } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { inviteUserSchema, profileSchema, userAccessSchema, userAdminSchema } from "@/lib/validation/schemas";
+import { inviteUserSchema, profileSchema, userAccessSchema, userAdminSchema, resetPasswordSchema } from "@/lib/validation/schemas";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -171,5 +171,42 @@ export async function inviteUser(formData: FormData): Promise<ActionResult> {
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : "Could not create user" };
+  }
+}
+
+export async function resetUserPassword(formData: FormData): Promise<ActionResult> {
+  try {
+    await assertPermission("users.manage");
+  } catch (err) {
+    if (err instanceof AuthError) return { ok: false, error: err.message };
+    throw err;
+  }
+
+  const parsed = resetPasswordSchema.safeParse({
+    user_id: formData.get("user_id"),
+    password: formData.get("password"),
+    confirm_password: formData.get("confirm_password"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid password" };
+  }
+
+  try {
+    const admin = createAdminClient();
+    const { data: profile, error: profileError } = await admin
+      .from("users")
+      .select("id")
+      .eq("id", parsed.data.user_id)
+      .maybeSingle();
+    if (profileError) throw profileError;
+    if (!profile) return { ok: false, error: "User not found" };
+
+    const { error } = await admin.auth.admin.updateUserById(parsed.data.user_id, {
+      password: parsed.data.password,
+    });
+    if (error) throw error;
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Could not reset password" };
   }
 }

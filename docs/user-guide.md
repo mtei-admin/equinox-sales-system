@@ -34,4 +34,4 @@ Open the app and sign in with the email and password provided by an administrato
 
 ## Users (admin)
 
-Open **Users**, invite or list Auth users, set role, and deactivate people who should no longer sign in. The first account in a new project is automatically **admin**.
+Open **Users**, invite or list Auth users, set role, and deactivate people who should no longer sign in. Open a user to **reset their password** (admin only). The new password is stored in Supabase Auth, not in Equinox. The first account in a new project is automatically **admin**.

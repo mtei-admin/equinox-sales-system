@@ -53,6 +53,17 @@ export const userAccessSchema = z.object({
   status: z.enum(["active", "inactive"]),
 });
 
+export const resetPasswordSchema = z
+  .object({
+    user_id: z.string().uuid(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirm_password: z.string().min(8, "Password must be at least 8 characters"),
+  })
+  .refine((value) => value.password === value.confirm_password, {
+    message: "Passwords do not match",
+    path: ["confirm_password"],
+  });
+
 export const customerSchema = z.object({
   name: z.string().trim().min(2).max(160),
   billing_address: z.string().trim().max(500).optional().or(z.literal("")),

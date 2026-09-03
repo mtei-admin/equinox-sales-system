@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Card, PageHeader, SecondaryLink } from "@/components/page-header";
 import { AuditFields } from "@/components/audit-fields";
 import { UserEditForm } from "@/components/forms/user-edit-form";
+import { ResetPasswordForm } from "@/components/forms/reset-password-form";
 import { requirePermission } from "@/lib/auth/guards";
 import { getProfile } from "@/lib/data/queries";
 import { ROLE_LABELS } from "@/lib/permissions/roles";
@@ -20,6 +21,7 @@ export default async function UserEditPage({ params }: { params: Promise<{ id: s
         actions={<SecondaryLink href="/users">Back to users</SecondaryLink>}
       />
       <UserEditForm user={user} />
+      <ResetPasswordForm userId={user.id} />
       <Card className="mt-4 max-w-2xl p-5">
         <AuditFields
           createdAt={user.created_at}
