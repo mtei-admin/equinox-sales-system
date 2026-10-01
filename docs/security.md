@@ -21,6 +21,8 @@ UI hide + Server Action `requireRole` + RLS SELECT + RPC role check (definer byp
 | SO / Invoice / ATW write | yes | yes | no | no |
 | WS read | yes | yes | yes | yes |
 | WS write | yes | no | yes | no |
+| Inventory read | yes | yes | yes | yes |
+| Inventory write | yes | no | yes | no |
 
 No `viewer` role.
 

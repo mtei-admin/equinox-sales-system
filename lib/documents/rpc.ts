@@ -62,3 +62,19 @@ export function issueWithdrawalSlip(id: string) {
 export function cancelWithdrawalSlip(id: string, reason: string) {
   return callRpc<void>("cancel_withdrawal_slip", { p_id: id, p_reason: reason });
 }
+
+export function createInventoryAdjustment(payload: Record<string, unknown>) {
+  return callRpc<string>("create_inventory_adjustment", { payload });
+}
+
+export function updateInventoryAdjustment(id: string, payload: Record<string, unknown>) {
+  return callRpc<string>("update_inventory_adjustment", { p_id: id, payload });
+}
+
+export function postInventoryAdjustment(id: string, reason: string) {
+  return callRpc<void>("post_inventory_adjustment", { p_id: id, p_reason: reason });
+}
+
+export function cancelInventoryAdjustment(id: string, reason: string) {
+  return callRpc<void>("cancel_inventory_adjustment", { p_id: id, p_reason: reason });
+}

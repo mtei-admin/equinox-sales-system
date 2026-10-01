@@ -14,6 +14,8 @@ export type Permission =
   | "atw-dr.write"
   | "withdrawal-slips.read"
   | "withdrawal-slips.write"
+  | "inventory.read"
+  | "inventory.write"
   | "reports.read";
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
@@ -31,6 +33,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "atw-dr.write",
     "withdrawal-slips.read",
     "withdrawal-slips.write",
+    "inventory.read",
+    "inventory.write",
     "reports.read",
   ],
   sales: [
@@ -45,6 +49,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "atw-dr.read",
     "atw-dr.write",
     "withdrawal-slips.read",
+    "inventory.read",
     "reports.read",
   ],
   warehouse: [
@@ -55,6 +60,8 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "atw-dr.read",
     "withdrawal-slips.read",
     "withdrawal-slips.write",
+    "inventory.read",
+    "inventory.write",
     "reports.read",
   ],
   accounting: [
@@ -64,6 +71,7 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "invoices.read",
     "atw-dr.read",
     "withdrawal-slips.read",
+    "inventory.read",
     "reports.read",
   ],
 };
@@ -82,6 +90,8 @@ export const ALL_PERMISSIONS: Permission[] = [
   "atw-dr.write",
   "withdrawal-slips.read",
   "withdrawal-slips.write",
+  "inventory.read",
+  "inventory.write",
   "reports.read",
 ];
 
@@ -97,5 +107,6 @@ export function canAccessModule(role: UserRole, module: ModuleKey) {
   if (module === "dashboard") return true;
   if (module === "users") return can(role, "users.manage");
   if (module === "reports") return can(role, "reports.read");
+  if (module === "inventory") return can(role, "inventory.read");
   return can(role, `${module}.read` as Permission);
 }

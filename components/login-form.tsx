@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { FormField, inputClassName } from "@/components/form-field";
-import { loginSchema } from "@/lib/validation/schemas";
+import { signIn } from "@/lib/auth/actions";
 import { safeNextPath } from "@/lib/auth/routes";
 
 export function LoginForm() {
@@ -19,38 +18,11 @@ export function LoginForm() {
   async function onSubmit(formData: FormData) {
     setPending(true);
     setError(null);
-    const parsed = loginSchema.safeParse({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    });
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Invalid credentials");
+    const result = await signIn(formData);
+    if (!result.ok) {
+      setError(result.error);
       setPending(false);
       return;
-    }
-
-    const supabase = createBrowserSupabaseClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: parsed.data.email,
-      password: parsed.data.password,
-    });
-    if (authError) {
-      setError(authError.message);
-      setPending(false);
-      return;
-    }
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase.from("users").select("status").eq("id", user.id).maybeSingle();
-      if (!profile || profile.status !== "active") {
-        await supabase.auth.signOut();
-        setError("This account is inactive. Ask an administrator to reactivate it.");
-        setPending(false);
-        return;
-      }
     }
 
     router.replace(next);

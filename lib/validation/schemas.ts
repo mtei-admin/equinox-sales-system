@@ -158,3 +158,23 @@ export const updateWithdrawalSlipSchema = z.object({
   remarks: optionalText,
   lines: z.array(withdrawalSlipLineSchema).optional(),
 });
+
+export const inventoryAdjustmentLineSchema = z.object({
+  item_id: z.string().uuid("Select an item"),
+  quantity: qty,
+  direction: z.enum(["increase", "decrease"]),
+});
+
+export const inventoryAdjustmentSchema = z.object({
+  remarks: optionalText,
+  lines: z.array(inventoryAdjustmentLineSchema).min(1, "At least one line is required"),
+});
+
+export const updateInventoryAdjustmentSchema = inventoryAdjustmentSchema.extend({
+  id: z.string().uuid(),
+});
+
+export const postInventoryAdjustmentSchema = z.object({
+  id: z.string().uuid(),
+  reason: z.string().trim().min(1, "Posting reason is required").max(500),
+});

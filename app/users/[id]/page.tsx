@@ -6,12 +6,14 @@ import { ResetPasswordForm } from "@/components/forms/reset-password-form";
 import { requirePermission } from "@/lib/auth/guards";
 import { getProfile } from "@/lib/data/queries";
 import { ROLE_LABELS } from "@/lib/permissions/roles";
+import { isAdminConfigured } from "@/lib/supabase/config";
 
 export default async function UserEditPage({ params }: { params: Promise<{ id: string }> }) {
   await requirePermission("users.manage");
   const { id } = await params;
   const user = await getProfile(id);
   if (!user) notFound();
+  const adminConfigured = isAdminConfigured();
 
   return (
     <>
@@ -21,7 +23,7 @@ export default async function UserEditPage({ params }: { params: Promise<{ id: s
         actions={<SecondaryLink href="/users">Back to users</SecondaryLink>}
       />
       <UserEditForm user={user} />
-      <ResetPasswordForm userId={user.id} />
+      <ResetPasswordForm userId={user.id} configured={adminConfigured} />
       <Card className="mt-4 max-w-2xl p-5">
         <AuditFields
           createdAt={user.created_at}

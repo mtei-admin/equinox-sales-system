@@ -16,21 +16,58 @@ import {
   Users,
   UserCog,
   BarChart3,
+  Boxes,
+  ClipboardPen,
   Warehouse,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const NAV: { href: string; label: string; module: ModuleKey; icon: typeof LayoutDashboard }[] = [
-  { href: "/dashboard", label: "Dashboard", module: "dashboard", icon: LayoutDashboard },
-  { href: "/customers", label: "Customers", module: "customers", icon: Users },
-  { href: "/items", label: "Items", module: "items", icon: Package },
-  { href: "/sales-orders", label: "Sales orders", module: "sales-orders", icon: ClipboardList },
-  { href: "/invoices", label: "Invoices", module: "invoices", icon: Receipt },
-  { href: "/atw-dr", label: "ATW / DR", module: "atw-dr", icon: Truck },
-  { href: "/withdrawal-slips", label: "Withdrawal slips", module: "withdrawal-slips", icon: Warehouse },
-  { href: "/reports", label: "Reports", module: "reports", icon: BarChart3 },
-  { href: "/users", label: "Users", module: "users", icon: UserCog },
+type NavItem = { href: string; label: string; module: ModuleKey; icon: typeof LayoutDashboard };
+type NavGroup = { id: string; label: string | null; items: NavItem[] };
+
+const NAV: NavGroup[] = [
+  {
+    id: "dashboard",
+    label: null,
+    items: [{ href: "/dashboard", label: "Dashboard", module: "dashboard", icon: LayoutDashboard }],
+  },
+  {
+    id: "master-data",
+    label: "Master Data",
+    items: [
+      { href: "/customers", label: "Customers", module: "customers", icon: Users },
+      { href: "/items", label: "Items", module: "items", icon: Package },
+    ],
+  },
+  {
+    id: "sales",
+    label: "Sales",
+    items: [
+      { href: "/sales-orders", label: "Sales orders", module: "sales-orders", icon: ClipboardList },
+      { href: "/invoices", label: "Invoices", module: "invoices", icon: Receipt },
+      { href: "/atw-dr", label: "ATW / DR", module: "atw-dr", icon: Truck },
+      { href: "/withdrawal-slips", label: "Withdrawal slips", module: "withdrawal-slips", icon: Warehouse },
+    ],
+  },
+  {
+    id: "inventory",
+    label: "Inventory",
+    items: [
+      { href: "/inventory", label: "Stock on hand", module: "inventory", icon: Boxes },
+      { href: "/inventory/adjustments", label: "Adjustments", module: "inventory", icon: ClipboardPen },
+    ],
+  },
+  {
+    id: "reports",
+    label: null,
+    items: [{ href: "/reports", label: "Reports", module: "reports", icon: BarChart3 }],
+  },
+  {
+    id: "users",
+    label: null,
+    items: [{ href: "/users", label: "Users", module: "users", icon: UserCog }],
+  },
 ];
 
 export function AppShellNav({
@@ -87,7 +124,11 @@ function Sidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const items = NAV.filter((item) => canAccessModule(role, item.module));
+  const groups = NAV.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => canAccessModule(role, item.module)),
+  })).filter((group) => group.items.length > 0);
+  const hrefs = groups.flatMap((group) => group.items.map((item) => item.href));
 
   return (
     <aside
@@ -110,24 +151,41 @@ function Sidebar({
           <X className="h-5 w-5" />
         </button>
       </div>
-      <nav className="flex-1 space-y-0.5 p-3">
-        {items.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm",
-                active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white",
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 space-y-4 overflow-y-auto p-3">
+        {groups.map((group) => (
+          <div key={group.id} className="space-y-0.5">
+            {group.label ? (
+              <p className="px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+                {group.label}
+              </p>
+            ) : null}
+            {group.items.map((item) => {
+              const active =
+                pathname === item.href ||
+                (pathname.startsWith(`${item.href}/`) &&
+                  !hrefs.some(
+                    (other) =>
+                      other !== item.href &&
+                      other.length > item.href.length &&
+                      (pathname === other || pathname.startsWith(`${other}/`)),
+                  ));
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm",
+                    active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/5 hover:text-white",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
       <p className="px-5 py-4 text-xs text-white/40">Order → Invoice → ATW → Withdrawal</p>
     </aside>

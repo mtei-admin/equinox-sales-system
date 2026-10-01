@@ -8,6 +8,7 @@ import { listProfiles } from "@/lib/data/queries";
 import { hasActiveFilters, parseUserListFilters } from "@/lib/master-data/filters";
 import { ALL_ROLES, ROLE_LABELS } from "@/lib/permissions/roles";
 import { inputClassName } from "@/components/form-field";
+import { isAdminConfigured } from "@/lib/supabase/config";
 
 export default async function UsersPage({
   searchParams,
@@ -15,6 +16,7 @@ export default async function UsersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requirePermission("users.manage");
+  const adminConfigured = isAdminConfigured();
   const filters = parseUserListFilters(await searchParams);
   const profiles = await listProfiles(filters);
   const filtered = hasActiveFilters(filters);
@@ -72,7 +74,7 @@ export default async function UsersPage({
             />
           ) : null}
         </Card>
-        <InviteUserForm />
+        <InviteUserForm configured={adminConfigured} />
       </div>
     </>
   );

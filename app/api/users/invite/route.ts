@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { AuthError, assertPermission } from "@/lib/auth/guards";
 import { inviteUser } from "@/lib/auth/actions";
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { adminEnvError, isAdminConfigured } from "@/lib/supabase/config";
 
 export async function POST(request: Request) {
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json({ error: "Supabase is not configured" }, { status: 503 });
+  if (!isAdminConfigured()) {
+    return NextResponse.json({ error: adminEnvError() }, { status: 503 });
   }
 
   try {

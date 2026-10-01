@@ -7,7 +7,7 @@ import { FormField, inputClassName } from "@/components/form-field";
 import { ALL_ROLES, ROLE_LABELS } from "@/lib/permissions/roles";
 import { inviteUser } from "@/lib/auth/actions";
 
-export function InviteUserForm() {
+export function InviteUserForm({ configured = true }: { configured?: boolean }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -57,9 +57,19 @@ export function InviteUserForm() {
             ))}
           </select>
         </FormField>
+        {!configured ? (
+          <p className="text-sm text-rose-700">
+            Missing SUPABASE_SERVICE_ROLE_KEY. Add it in Vercel Settings → Environment Variables (or .env.local), then
+            redeploy or restart.
+          </p>
+        ) : null}
         {error ? <p className="text-sm text-rose-700">{error}</p> : null}
         {message ? <p className="text-sm text-emerald-800">{message}</p> : null}
-        <button type="submit" disabled={pending} className="w-full rounded-md bg-eq-navy py-2 text-sm text-white">
+        <button
+          type="submit"
+          disabled={pending || !configured}
+          className="w-full rounded-md bg-eq-navy py-2 text-sm text-white"
+        >
           {pending ? "Creating…" : "Create user"}
         </button>
       </form>

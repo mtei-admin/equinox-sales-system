@@ -12,7 +12,10 @@ See field map in the previous revision; locked choices:
 
 - `public.users` (not `profiles`): `username`, `full_name`, `department` (text), `role`, `status` (`active`/`inactive`). PK = `auth.users.id`. No password.
 - `customers`: `name`, `billing_address`, `tin_number`, `status`, `contact_person`, `contact_number`.
-- `items`: `name`, `description`, `brand`, `model`, `serial_no`, `barcode`. Catalog model (D7). No stock, no master price.
+- `items`: `name`, `description`, `brand`, `model`, `serial_no`, `barcode`. Catalog model (D7). No stock column on the item; on-hand is computed from `inventory_movements`.
+- `warehouses`: one seeded **Main** row. `warehouse_id` is snapshotted on SO → Invoice → ATW/DR → WS.
+- `inventory_adjustments` + `inventory_adjustment_items`: `ADJ-YYYY-NNNN`; status `draft` / `posted` / `cancelled`; line `direction` `increase` \| `decrease`.
+- `inventory_movements`: append-only signed quantities. Sources: `adjustment`, `withdrawal_slip`.
 - `sales_orders` + `sales_order_items`: snapshots; UOM and `unit_price` on the line; `amount = quantity * unit_price`; `total_amount = amount`.
 - `invoices` + `invoice_items`: `sales_order_id` not null; `invoice_number` unique where status ≠ `cancelled`; `tax_amount` typed; `total_amount = amount + tax_amount`.
 - `atw_documents` + `atw_document_items`: `document_type` `atw` \| `dr`; line `quantity` plus `invoice_item_quantity` snapshot.
@@ -38,6 +41,11 @@ erDiagram
   atw_documents ||--o| withdrawal_slips : atw_id
   withdrawal_slips ||--|{ withdrawal_slip_items : withdrawal_slip_id
   atw_document_items ||--o{ withdrawal_slip_items : atw_item_id
+  warehouses ||--o{ sales_orders : warehouse_id
+  warehouses ||--o{ inventory_adjustments : warehouse_id
+  warehouses ||--o{ inventory_movements : warehouse_id
+  items ||--o{ inventory_adjustment_items : item_id
+  inventory_adjustments ||--|{ inventory_adjustment_items : adjustment_id
 ```
 
 Child FKs to headers: `on delete restrict` for posted history. Draft line replace happens inside RPCs.
@@ -66,11 +74,23 @@ create unique index withdrawal_slips_one_active_per_atw
 
 ## Writes
 
-`authenticated`: SELECT on transactional tables. INSERT/UPDATE/DELETE of SO/Invoice/ATW/WS only via `security definer` RPCs that check `current_user_role()`. Master data: RLS writes for `admin` and `sales`.
+`authenticated`: SELECT on transactional tables. INSERT/UPDATE/DELETE of SO/Invoice/ATW/WS/adjustments only via `security definer` RPCs that check `current_user_role()`. Master data: RLS writes for `admin` and `sales`.
 
-RPCs: `create_sales_order`, `open_sales_order`, `create_invoice`, `post_invoice`, `create_atw_document`, `release_atw_document`, `create_withdrawal_slip`, `issue_withdrawal_slip`, `cancel_sales_order`, `cancel_invoice`, `cancel_atw_document`, `cancel_withdrawal_slip`.
+RPCs: `create_sales_order`, `open_sales_order`, `create_invoice`, `post_invoice`, `create_atw_document`, `release_atw_document`, `create_withdrawal_slip`, `issue_withdrawal_slip`, `cancel_sales_order`, `cancel_invoice`, `cancel_atw_document`, `cancel_withdrawal_slip`, `create_inventory_adjustment`, `update_inventory_adjustment`, `post_inventory_adjustment`, `cancel_inventory_adjustment`.
 
 Cannot cancel a parent that still has a non-cancelled child.
+
+## Inventory
+
+```
+on_hand(warehouse, item) = sum(inventory_movements.quantity)
+reserved(warehouse, item) =
+  sum(SO line qty where SO status in open/closed)
+  − sum(issued WS qty for those SO lines)
+available = on_hand − reserved
+```
+
+Draft SO does not reserve. Invoice/ATW/draft WS do not change on-hand. Issued WS inserts negative movements. Cancel issued WS inserts reversing positives. Posted decrease cannot exceed available. Opening an SO is rejected if required qty > available.
 
 ## Indexes
 

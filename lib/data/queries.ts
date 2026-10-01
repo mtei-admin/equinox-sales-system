@@ -5,6 +5,9 @@ import type {
   AtwRow,
   AtwStatus,
   CustomerRow,
+  InventoryAdjustmentItemRow,
+  InventoryAdjustmentRow,
+  InventoryStockRow,
   InvoiceItemRow,
   InvoiceRow,
   InvoiceStatus,
@@ -31,6 +34,7 @@ import {
   withdrawalSlipSearchOr,
   type WithdrawalSlipListFilters,
 } from "@/lib/withdrawal-slips/filters";
+import { adjustmentSearchOr, type InventoryAdjustmentListFilters } from "@/lib/inventory/filters";
 
 export async function safeQuery<T>(run: () => Promise<T>, fallback: NoInfer<T>): Promise<T> {
   if (!isSupabaseConfigured()) return fallback;
@@ -495,6 +499,61 @@ export async function listProfiles(filters: UserListFilters = { q: "", status: "
     if (error) throw error;
     return (data ?? []) as UserRow[];
   }, [] as UserRow[]);
+}
+
+export async function listInventoryStock() {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase.from("inventory_stock").select("*").order("item_name");
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+      ...row,
+      on_hand: Number(row.on_hand),
+      reserved: Number(row.reserved),
+      available: Number(row.available),
+    })) as InventoryStockRow[];
+  }, [] as InventoryStockRow[]);
+}
+
+export async function getItemStock(itemId: string) {
+  const rows = await listInventoryStock();
+  return rows.find((row) => row.item_id === itemId) ?? null;
+}
+
+export async function listInventoryAdjustments(filters: InventoryAdjustmentListFilters = { q: "", status: "all" }) {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    let query = supabase.from("inventory_adjustments").select("*").order("created_at", { ascending: false });
+    if (filters.status !== "all") query = query.eq("status", filters.status);
+    const pattern = ilikeContains(filters.q);
+    if (pattern) query = query.or(adjustmentSearchOr(pattern));
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data ?? []) as InventoryAdjustmentRow[];
+  }, [] as InventoryAdjustmentRow[]);
+}
+
+export async function getInventoryAdjustment(id: string) {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    const { data } = await supabase.from("inventory_adjustments").select("*").eq("id", id).maybeSingle();
+    if (!data) return null;
+    const row = data as InventoryAdjustmentRow;
+    const { data: lines } = await supabase
+      .from("inventory_adjustment_items")
+      .select("*")
+      .eq("adjustment_id", id)
+      .order("sort_order");
+    const audit = await resolveAuditNames(row.created_by, row.updated_by, row.cancelled_by);
+    return {
+      ...row,
+      ...audit,
+      inventory_adjustment_items: ((lines ?? []) as InventoryAdjustmentItemRow[]).map((line) => ({
+        ...line,
+        quantity: Number(line.quantity),
+      })),
+    };
+  }, null);
 }
 
 export async function getProfile(id: string) {

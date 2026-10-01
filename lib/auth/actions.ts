@@ -4,9 +4,58 @@ import { revalidatePath } from "next/cache";
 import { AuthError, assertPermission, requireProfile } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { inviteUserSchema, profileSchema, userAccessSchema, userAdminSchema, resetPasswordSchema } from "@/lib/validation/schemas";
+import { adminEnvError, isAdminConfigured, isSupabaseConfigured } from "@/lib/supabase/config";
+import {
+  inviteUserSchema,
+  loginSchema,
+  profileSchema,
+  resetPasswordSchema,
+  userAccessSchema,
+  userAdminSchema,
+} from "@/lib/validation/schemas";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
+
+export async function signIn(formData: FormData): Promise<ActionResult> {
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid credentials" };
+  }
+  if (!isSupabaseConfigured()) {
+    return { ok: false, error: "Supabase is not configured" };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password,
+  });
+  if (error) {
+    if (error.message === "fetch failed") {
+      return {
+        ok: false,
+        error: "Cannot reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL in .env.local and that the project is running.",
+      };
+    }
+    return { ok: false, error: error.message };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Invalid login credentials" };
+
+  const { data: profile } = await supabase.from("users").select("status").eq("id", user.id).maybeSingle();
+  if (!profile || profile.status !== "active") {
+    await supabase.auth.signOut();
+    return { ok: false, error: "This account is inactive. Ask an administrator to reactivate it." };
+  }
+
+  return { ok: true };
+}
 
 export async function updateOwnProfile(formData: FormData): Promise<ActionResult> {
   const profile = await requireProfile();
@@ -138,6 +187,9 @@ export async function inviteUser(formData: FormData): Promise<ActionResult> {
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid invite" };
   }
+  if (!isAdminConfigured()) {
+    return { ok: false, error: adminEnvError() };
+  }
 
   try {
     const admin = createAdminClient();
@@ -189,6 +241,9 @@ export async function resetUserPassword(formData: FormData): Promise<ActionResul
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid password" };
+  }
+  if (!isAdminConfigured()) {
+    return { ok: false, error: adminEnvError() };
   }
 
   try {

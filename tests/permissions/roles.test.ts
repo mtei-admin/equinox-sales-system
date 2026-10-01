@@ -12,11 +12,14 @@ const WRITES: Permission[] = [
   "invoices.write",
   "atw-dr.write",
   "withdrawal-slips.write",
+  "inventory.write",
 ];
 
 const EXPECTED: Record<UserRole, Permission[]> = {
   admin: [...ALL_PERMISSIONS],
-  sales: ALL_PERMISSIONS.filter((p) => p !== "users.manage" && p !== "withdrawal-slips.write"),
+  sales: ALL_PERMISSIONS.filter(
+    (p) => p !== "users.manage" && p !== "withdrawal-slips.write" && p !== "inventory.write",
+  ),
   warehouse: [
     "customers.read",
     "items.read",
@@ -25,6 +28,8 @@ const EXPECTED: Record<UserRole, Permission[]> = {
     "atw-dr.read",
     "withdrawal-slips.read",
     "withdrawal-slips.write",
+    "inventory.read",
+    "inventory.write",
     "reports.read",
   ],
   accounting: [
@@ -34,6 +39,7 @@ const EXPECTED: Record<UserRole, Permission[]> = {
     "invoices.read",
     "atw-dr.read",
     "withdrawal-slips.read",
+    "inventory.read",
     "reports.read",
   ],
 };
@@ -60,6 +66,8 @@ describe("role permission matrix", () => {
     expect(can("sales", "withdrawal-slips.write")).toBe(false);
     expect(can("sales", "users.manage")).toBe(false);
     expect(canAccessModule("sales", "users")).toBe(false);
+    expect(can("sales", "inventory.read")).toBe(true);
+    expect(can("sales", "inventory.write")).toBe(false);
   });
 
   it("warehouse writes withdrawal slips only", () => {
@@ -72,6 +80,8 @@ describe("role permission matrix", () => {
     expect(can("warehouse", "users.manage")).toBe(false);
     expect(canAccessModule("warehouse", "users")).toBe(false);
     expect(canAccessModule("warehouse", "withdrawal-slips")).toBe(true);
+    expect(can("warehouse", "inventory.write")).toBe(true);
+    expect(canAccessModule("warehouse", "inventory")).toBe(true);
   });
 
   it("accounting is view-only and cannot open Users admin", () => {

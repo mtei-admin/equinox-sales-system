@@ -5,6 +5,9 @@ export type InvoiceStatus = "draft" | "posted" | "cancelled";
 export type AtwStatus = "draft" | "released" | "cancelled";
 export type WsStatus = "draft" | "issued" | "cancelled";
 export type AtwDocumentType = "atw" | "dr";
+export type InventoryAdjustmentStatus = "draft" | "posted" | "cancelled";
+export type InventoryAdjustmentDirection = "increase" | "decrease";
+export type InventoryMovementSource = "adjustment" | "withdrawal_slip";
 
 export type UserRow = {
   id: string;
@@ -60,6 +63,7 @@ export type SalesOrderRow = {
   order_type: string | null;
   sales_employee_id: string | null;
   sales_employee_name: string | null;
+  warehouse_id: string;
   total_quantity: number;
   grand_total: number;
   status: SoStatus;
@@ -102,6 +106,7 @@ export type InvoiceRow = {
   order_type: string | null;
   sales_employee_id: string | null;
   sales_employee_name: string | null;
+  warehouse_id: string;
   status: InvoiceStatus;
   remarks: string | null;
   total_quantity: number;
@@ -148,6 +153,7 @@ export type AtwRow = {
   order_type: string | null;
   sales_employee_id: string | null;
   sales_employee_name: string | null;
+  warehouse_id: string;
   status: AtwStatus;
   remarks: string | null;
   total_quantity: number;
@@ -195,6 +201,7 @@ export type WithdrawalSlipRow = {
   order_type: string | null;
   sales_employee_id: string | null;
   sales_employee_name: string | null;
+  warehouse_id: string;
   status: WsStatus;
   remarks: string | null;
   total_quantity: number;
@@ -224,4 +231,57 @@ export type WithdrawalSlipItemRow = {
   amount: number;
   total_amount: number;
   sort_order: number;
+};
+
+export type WarehouseRow = {
+  id: string;
+  name: string;
+  status: MasterStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type InventoryAdjustmentRow = {
+  id: string;
+  adj_number: string;
+  warehouse_id: string;
+  reason: string | null;
+  remarks: string | null;
+  status: InventoryAdjustmentStatus;
+  created_by: string | null;
+  created_at: string;
+  updated_by: string | null;
+  updated_at: string;
+  cancelled_by: string | null;
+  cancelled_at: string | null;
+  cancellation_reason: string | null;
+};
+
+export type InventoryAdjustmentItemRow = {
+  id: string;
+  adjustment_id: string;
+  item_id: string;
+  item_name: string;
+  description: string | null;
+  model: string | null;
+  barcode: string | null;
+  quantity: number;
+  direction: InventoryAdjustmentDirection;
+  sort_order: number;
+};
+
+export type InventoryStockRow = {
+  warehouse_id: string;
+  warehouse_name: string;
+  item_id: string;
+  item_name: string;
+  brand: string | null;
+  model: string | null;
+  barcode: string | null;
+  item_status: MasterStatus;
+  on_hand: number;
+  reserved: number;
+  available: number;
 };

@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader, SecondaryLink } from "@/components/page-header";
 import { SalesOrderForm } from "@/components/forms/sales-order-form";
-import { getSalesOrder, listActiveUsers, listCustomers, listItems } from "@/lib/data/queries";
+import { getSalesOrder, listActiveUsers, listCustomers, listInventoryStock, listItems } from "@/lib/data/queries";
 import { requirePermission } from "@/lib/auth/guards";
 
 export default async function EditSalesOrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -11,10 +11,11 @@ export default async function EditSalesOrderPage({ params }: { params: Promise<{
   if (!order) notFound();
   if (order.status !== "draft") redirect(`/sales-orders/${order.id}`);
 
-  const [customers, items, employees] = await Promise.all([
+  const [customers, items, employees, stock] = await Promise.all([
     listCustomers({ q: "", status: "active" }),
     listItems({ q: "", status: "active" }),
     listActiveUsers(),
+    listInventoryStock(),
   ]);
   const customerOptions = customers.some((row) => row.id === order.customer_id)
     ? customers
@@ -66,6 +67,7 @@ export default async function EditSalesOrderPage({ params }: { params: Promise<{
       <SalesOrderForm
         customers={customerOptions}
         items={itemOptions}
+        stock={stock}
         employees={employees}
         currentUserId={profile.id}
         order={order}

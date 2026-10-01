@@ -3,12 +3,14 @@ import { Card, PageHeader, PrimaryLink, SecondaryLink } from "@/components/page-
 import { StatusBadge } from "@/components/status-badge";
 import { AuditFields } from "@/components/audit-fields";
 import { Can } from "@/components/can";
-import { getItem } from "@/lib/data/queries";
+import { getItem, getItemStock } from "@/lib/data/queries";
+import { formatQty } from "@/lib/utils";
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const item = await getItem(id);
   if (!item) notFound();
+  const stock = await getItemStock(id);
 
   return (
     <>
@@ -42,6 +44,18 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
           <div>
             <dt className="text-xs uppercase text-eq-slate">Barcode</dt>
             <dd className="mt-1 font-mono text-sm">{item.barcode ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-eq-slate">On hand</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.on_hand) : "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-eq-slate">Reserved</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.reserved) : "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-eq-slate">Available</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.available) : "—"}</dd>
           </div>
         </dl>
         <AuditFields

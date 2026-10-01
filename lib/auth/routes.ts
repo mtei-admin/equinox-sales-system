@@ -27,6 +27,9 @@ const ROUTE_RULES: RouteRule[] = [
   { prefix: "/atw-dr", access: "atw-dr.read" },
   { prefix: "/withdrawal-slips/new", access: "withdrawal-slips.write" },
   { prefix: "/withdrawal-slips", access: "withdrawal-slips.read" },
+  { prefix: "/inventory/adjustments/new", access: "inventory.write" },
+  { prefix: "/inventory/adjustments", access: "inventory.read" },
+  { prefix: "/inventory", access: "inventory.read" },
   { prefix: "/reports", access: "reports.read" },
   { prefix: "/profile", access: "authenticated" },
   { prefix: "/dashboard", access: "authenticated" },
@@ -45,6 +48,7 @@ export function accessForPath(pathname: string): RouteAccess {
   if (/^\/items\/[^/]+\/edit$/.test(pathname)) return "items.write";
   if (/^\/sales-orders\/[^/]+\/edit$/.test(pathname)) return "sales-orders.write";
   if (/^\/withdrawal-slips\/[^/]+\/edit$/.test(pathname)) return "withdrawal-slips.write";
+  if (/^\/inventory\/adjustments\/[^/]+\/edit$/.test(pathname)) return "inventory.write";
   if (/^\/users\/[^/]+$/.test(pathname)) return "users.manage";
 
   const match = [...ROUTE_RULES]

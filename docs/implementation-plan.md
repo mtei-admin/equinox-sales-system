@@ -15,9 +15,10 @@
 | 6 | ATW/DR UI | done |
 | 7 | Withdrawal Slip UI | done |
 | 8 | Dashboard and reports (D19) | done |
-| 9 | Playwright, Vercel, deployment refresh | not started |
+| 9 | Inventory (on-hand / reserved / available, adjustments) | done |
+| 10 | Playwright, Vercel, deployment refresh | not started |
 
-v1 out of scope: stock, payments, print templates, separate ATW/DR tables, multiple active WS per ATW.
+v1 out of scope: payments, print templates, separate ATW/DR tables, multiple active WS per ATW, warehouse picker.
 
 ## Engineering
 

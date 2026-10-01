@@ -5,7 +5,7 @@ import { Card } from "@/components/page-header";
 import { FormField, inputClassName } from "@/components/form-field";
 import { resetUserPassword } from "@/lib/auth/actions";
 
-export function ResetPasswordForm({ userId }: { userId: string }) {
+export function ResetPasswordForm({ userId, configured = true }: { userId: string; configured?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -47,10 +47,20 @@ export function ResetPasswordForm({ userId }: { userId: string }) {
             autoComplete="new-password"
           />
         </FormField>
+        {!configured ? (
+          <p className="sm:col-span-2 text-sm text-rose-700">
+            Missing SUPABASE_SERVICE_ROLE_KEY. Add it in Vercel Settings → Environment Variables (or .env.local), then
+            redeploy or restart.
+          </p>
+        ) : null}
         {error ? <p className="sm:col-span-2 text-sm text-rose-700">{error}</p> : null}
         {message ? <p className="sm:col-span-2 text-sm text-emerald-800">{message}</p> : null}
         <div className="sm:col-span-2">
-          <button type="submit" disabled={pending} className="rounded-md bg-eq-navy px-4 py-2 text-sm text-white">
+          <button
+            type="submit"
+            disabled={pending || !configured}
+            className="rounded-md bg-eq-navy px-4 py-2 text-sm text-white"
+          >
             {pending ? "Updating…" : "Reset password"}
           </button>
         </div>

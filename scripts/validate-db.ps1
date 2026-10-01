@@ -77,14 +77,16 @@ try {
   }
 
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "supabase\seed.sql")
+  Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\opening_stock.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_foundation.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_auth.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_sales_order.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_invoice.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_atw.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_ws.sql")
+  Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_inventory.sql")
 
-  Write-Host "PHASE 1-7 DATABASE VALIDATION PASSED"
+  Write-Host "PHASE 1-7 + INVENTORY DATABASE VALIDATION PASSED"
   exit 0
 }
 finally {

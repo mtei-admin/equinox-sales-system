@@ -31,7 +31,8 @@ begin
   from unnest(array[
     'users', 'document_sequences', 'customers', 'items',
     'sales_orders', 'sales_order_items', 'invoices', 'invoice_items',
-    'atw_documents', 'atw_document_items', 'withdrawal_slips', 'withdrawal_slip_items'
+    'atw_documents', 'atw_document_items', 'withdrawal_slips', 'withdrawal_slip_items',
+    'warehouses', 'inventory_adjustments', 'inventory_adjustment_items', 'inventory_movements'
   ]) as t
   where not exists (
     select 1 from information_schema.tables
@@ -161,12 +162,13 @@ begin
 
   perform public._phase1_record(
     'numbering', 'document_sequences rows',
-    (select count(*) from public.document_sequences) = 3
+    (select count(*) from public.document_sequences) = 4
       and exists (select 1 from public.document_sequences where doc_type = 'sales_order')
       and exists (select 1 from public.document_sequences where doc_type = 'atw')
       and exists (select 1 from public.document_sequences where doc_type = 'withdrawal_slip')
+      and exists (select 1 from public.document_sequences where doc_type = 'inventory_adjustment')
       and not exists (select 1 from public.document_sequences where doc_type = 'invoice'),
-    'SO/ATW/WS only; invoice is typed'
+    'SO/ATW/WS/ADJ; invoice is typed'
   );
 
   perform public._phase1_record(

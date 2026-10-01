@@ -51,13 +51,13 @@ Quantity remaining and one active WS per ATW: enforced in Postgres (row locks + 
 | D14 | `invoice_number` unique among invoices with status ≠ `cancelled`. Cancelled numbers may be reused. Uniqueness is global (not per year). |
 | D15 | `order_type` and `term` are free text in v1. |
 | D16 | SO `delivery_address` defaults from customer `billing_address`, then snapshot; user may edit on the SO. |
-| D17 | Inventory / stock on hand: **out of scope**. |
+| D17 | Inventory: movement ledger. On-hand = sum of movements. Reserved = open/closed SO qty not yet issued. Available = on-hand − reserved. Stock leaves on **WS issued**. Adjustments are documents. One warehouse now (`warehouse_id` for later locations). |
 | D18 | Payments, AR, credit limit: **out of scope**. |
 | D19 | v1 reports: remaining SO qty, remaining invoice qty, ATW without a non-cancelled WS. |
 | D20 | **One non-cancelled WS per ATW.** Partial unique index on `withdrawal_slips(atw_id) WHERE status <> 'cancelled'`. Cancelling a WS frees the ATW for a replacement slip. |
 | D21 | New migration replaces prototype objects. Do not edit `20240901000000_init.sql`. |
 | D22 | `timestamptz` in UTC in the database; display `Asia/Manila`. Document business dates are `date`. |
-| D23 | v1 is data capture only. Print templates later. |
+| D23 | Print templates later. |
 | D24 | Accounting cannot open Users admin. Accounting reads operational documents and master data. |
 
 ### Approved statuses
@@ -96,7 +96,7 @@ components/             # presentational UI
 lib/supabase/           # clients
 lib/auth/               # session, guards
 lib/permissions/        # role matrix = RLS
-lib/reports/            # role dashboards and D19 remaining pipeline
+lib/inventory/          # on-hand / reserved / available helpers and adjustment actions
 lib/validation/         # Zod
 lib/business/           # remaining qty and totals (tested)
 lib/documents/          # Server Action / RPC wrappers

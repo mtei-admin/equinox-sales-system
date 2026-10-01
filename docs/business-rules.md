@@ -35,7 +35,8 @@ Reject over-allocation. Concurrent users: row locks in RPCs.
 | Invoice | `draft` | `posted` | `cancelled` |
 | ATW/DR | `draft` | `released` | `cancelled` |
 | WS | `draft` | `issued` | `cancelled` |
-| Customer/Item/User | — | `active` | `inactive` |
+| Inventory adjustment | `draft` | `posted` | `cancelled` |
+| Customer/Item/User/Warehouse | — | `active` | `inactive` |
 
 Next document only from released status. Drafts editable via RPC. Posted/issued lines are not edited; correction is cancel + new document if remaining qty allows.
 
@@ -43,15 +44,24 @@ Cancel is a status change (not delete). Blocked if a non-cancelled child exists.
 
 SO `closed` when remaining qty is 0 on all lines; may return to `open` if an invoice is cancelled.
 
+## Inventory
+
+- On-hand = sum of posted movements (adjustments and issued withdrawal slips).
+- Reserved = quantity on **open** or **closed** sales orders that has not been issued on a withdrawal slip. Draft SO does not reserve.
+- Available = on-hand − reserved. Available cannot go negative.
+- Opening an SO is rejected if any item’s required qty exceeds available.
+- Physical stock decreases when a withdrawal slip is **issued**. Cancelling an issued slip restores on-hand and reserved.
+- Adjustments are documents (`draft` / `posted` / `cancelled`). Posting writes movements. One warehouse (Main) in this phase; `warehouse_id` is stored for later locations.
+
 ## Roles
 
-| Role | SO / Invoice / ATW | WS | Customers / Items | Users |
-| --- | --- | --- | --- | --- |
-| admin | write | write | write | manage |
-| sales | write | read | write | no |
-| warehouse | read | write | read | no |
-| accounting | read | read | read | no |
+| Role | SO / Invoice / ATW | WS | Inventory adj. | Customers / Items | Users |
+| --- | --- | --- | --- | --- | --- |
+| admin | write | write | write | write | manage |
+| sales | write | read | read | write | no |
+| warehouse | read | write | write | read | no |
+| accounting | read | read | read | read | no |
 
 ## Out of scope (v1)
 
-Stock on hand, payments/AR/credit limit, print templates.
+Payments/AR/credit limit, print templates, warehouse picker / transfers, serial-level stock.

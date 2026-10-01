@@ -7,6 +7,11 @@ export type {
   InvoiceItemRow,
   InvoiceRow,
   InvoiceStatus,
+  InventoryAdjustmentDirection,
+  InventoryAdjustmentItemRow,
+  InventoryAdjustmentRow,
+  InventoryAdjustmentStatus,
+  InventoryStockRow,
   ItemRow,
   MasterStatus,
   SalesOrderItemRow,
@@ -14,6 +19,7 @@ export type {
   SoStatus,
   UserRole,
   UserRow,
+  WarehouseRow,
   WithdrawalSlipItemRow,
   WithdrawalSlipRow,
   WsStatus,
@@ -30,4 +36,5 @@ export type ModuleKey =
   | "invoices"
   | "atw-dr"
   | "withdrawal-slips"
+  | "inventory"
   | "reports";
