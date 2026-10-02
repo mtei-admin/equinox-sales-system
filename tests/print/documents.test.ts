@@ -133,6 +133,7 @@ describe("print paths", () => {
     expect(isPrintPath("/invoices/abc/print")).toBe(true);
     expect(isPrintPath("/atw-dr/abc/print")).toBe(true);
     expect(isPrintPath("/withdrawal-slips/abc/print")).toBe(true);
+    expect(isPrintPath("/inventory/print")).toBe(true);
     expect(isPrintPath("/invoices/abc")).toBe(false);
     expect(isPrintPath("/invoices/abc/print/extra")).toBe(false);
   });

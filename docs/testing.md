@@ -26,7 +26,7 @@
 - Dashboard views: admin full; sales documents + pending; warehouse ATW pending withdrawal + slips; accounting read-only overview without action links.
 - Only admin may reset a user password; new password must be at least 8 characters and match confirmation.
 - Opening a sales order is rejected when available qty is insufficient. Posted decrease adjustments cannot take available below reserved. Issuing a WS decreases on-hand; cancelling an issued WS restores it.
-- Invoice, ATW/DR, and withdrawal slip print use stored snapshot fields. Print routes use the same read permission as the document.
+- Invoice, ATW/DR, and withdrawal slip print use stored snapshot fields. Print routes use the same read permission as the document. Inventory summary print lists current on-hand, reserved, and available and uses inventory read.
 
 ## Must-have (SQL / staging — after `supabase db push`)
 

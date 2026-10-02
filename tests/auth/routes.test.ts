@@ -35,6 +35,7 @@ const CASES: { path: string; allowed: UserRole[] }[] = [
   { path: "/withdrawal-slips/abc/print", allowed: ["admin", "sales", "warehouse", "accounting"] },
   { path: "/withdrawal-slips/abc/edit", allowed: ["admin", "warehouse"] },
   { path: "/inventory", allowed: ["admin", "sales", "warehouse", "accounting"] },
+  { path: "/inventory/print", allowed: ["admin", "sales", "warehouse", "accounting"] },
   { path: "/inventory/adjustments", allowed: ["admin", "sales", "warehouse", "accounting"] },
   { path: "/inventory/adjustments/new", allowed: ["admin", "warehouse"] },
   { path: "/inventory/adjustments/abc", allowed: ["admin", "sales", "warehouse", "accounting"] },

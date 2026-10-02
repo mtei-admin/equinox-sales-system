@@ -1,4 +1,4 @@
-import { Card, PageHeader, PrimaryLink } from "@/components/page-header";
+import { Card, PageHeader, PrimaryLink, SecondaryLink } from "@/components/page-header";
 import { DataTable, EmptyState } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
 import { Can } from "@/components/can";
@@ -14,9 +14,12 @@ export default async function InventoryStockPage() {
         title="Stock on hand"
         description="On-hand is the movement ledger. Reserved is open/closed sales-order quantity not yet issued. Available = on-hand − reserved."
         actions={
-          <Can permission="inventory.write">
-            <PrimaryLink href="/inventory/adjustments/new">New adjustment</PrimaryLink>
-          </Can>
+          <>
+            <SecondaryLink href="/inventory/print">Print</SecondaryLink>
+            <Can permission="inventory.write">
+              <PrimaryLink href="/inventory/adjustments/new">New adjustment</PrimaryLink>
+            </Can>
+          </>
         }
       />
       <Card>

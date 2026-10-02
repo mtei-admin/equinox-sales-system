@@ -37,6 +37,8 @@ Open the app and sign in with the email and password provided by an administrato
 
 Open an invoice, ATW/DR, or withdrawal slip and choose **Print**. The print page uses the customer, address, and line details stored on that document. The top of the page is left blank for the company letterhead and logo. A cancelled document is marked cancelled. The invoice print is a copy; the number is still the pre-printed invoice number.
 
+**Stock on hand** also has **Print**. That inventory summary lists current on-hand, reserved, and available quantities.
+
 ## Users (admin)
 
 Open **Users**, invite or list Auth users, set role, and deactivate people who should no longer sign in. Open a user to **reset their password** (admin only). The new password is stored in Supabase Auth, not in Equinox. Invite and password reset need `SUPABASE_SERVICE_ROLE_KEY` on the server (Vercel or `.env.local`). The first account in a new project is automatically **admin**.
