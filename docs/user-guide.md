@@ -39,6 +39,10 @@ Open an invoice, ATW/DR, or withdrawal slip and choose **Print**. The print page
 
 **Stock on hand** also has **Print**. That inventory summary lists current on-hand, reserved, and available quantities.
 
+## Install the app
+
+Equinox can be installed from the browser. On a phone, use the browser menu and choose **Install app** or **Add to Home Screen**. The icon is a placeholder until the company logo is added. Installed Equinox still needs a connection: orders, invoices, and stock are not stored on the device. If the network is down, the app shows an offline message.
+
 ## Users (admin)
 
 Open **Users**, invite or list Auth users, set role, and deactivate people who should no longer sign in. Open a user to **reset their password** (admin only). The new password is stored in Supabase Auth, not in Equinox. Invite and password reset need `SUPABASE_SERVICE_ROLE_KEY` on the server (Vercel or `.env.local`). The first account in a new project is automatically **admin**.

@@ -124,3 +124,7 @@ docs/
 | Source | GitHub |
 
 Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only).
+
+## Installed app
+
+Equinox is a progressive web app: `app/manifest.ts`, icons in `public/icons/`, and `public/sw.js`. The service worker does not cache `/api/` or document pages. Navigations use the network. When the network fails, `/offline` is shown. The home-screen icon is a placeholder until the company logo is supplied.

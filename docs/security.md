@@ -26,6 +26,8 @@ UI hide + Server Action `requireRole` + RLS SELECT + RPC role check (definer byp
 
 No `viewer` role. Print pages for invoices, ATW/DR, and withdrawal slips use the same read permission as the document. They do not use the service role.
 
+The installed app’s service worker does not cache API responses or signed-in document pages.
+
 ## RLS
 
 - SELECT transactional + master: `is_active_user()`.

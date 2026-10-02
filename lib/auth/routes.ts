@@ -10,6 +10,9 @@ type RouteRule = {
 
 const ROUTE_RULES: RouteRule[] = [
   { prefix: "/login", access: "public" },
+  { prefix: "/offline", access: "public" },
+  { prefix: "/manifest.webmanifest", access: "public" },
+  { prefix: "/sw.js", access: "public" },
   { prefix: "/api/health", access: "public" },
   { prefix: "/api/auth/sign-out", access: "public" },
   { prefix: "/api/users/invite", access: "users.manage" },
