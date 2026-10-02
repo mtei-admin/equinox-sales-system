@@ -1,6 +1,6 @@
 # Implementation plan
 
-**Status:** Phase 0 complete (proposals accepted 2026-09-01). Phases 1–8 dashboard and reports complete (schema, auth, master data, sales orders, invoices, ATW/DR, withdrawal slips, role dashboards / D19). Playwright and Vercel remain later.
+**Status:** Phase 0 complete (proposals accepted 2026-09-01). Phases 1–10 complete through inventory and browser print. Playwright and Vercel remain later.
 
 ## Phases
 
@@ -16,9 +16,10 @@
 | 7 | Withdrawal Slip UI | done |
 | 8 | Dashboard and reports (D19) | done |
 | 9 | Inventory (on-hand / reserved / available, adjustments) | done |
-| 10 | Playwright, Vercel, deployment refresh | not started |
+| 10 | Browser print for Invoice, ATW/DR, and Withdrawal Slip | done |
+| 11 | Playwright, Vercel, deployment refresh | not started |
 
-v1 out of scope: payments, print templates, separate ATW/DR tables, multiple active WS per ATW, warehouse picker.
+v1 out of scope: payments, official letterhead and logo, separate ATW/DR tables, multiple active WS per ATW, warehouse picker.
 
 ## Engineering
 

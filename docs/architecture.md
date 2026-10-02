@@ -57,7 +57,7 @@ Quantity remaining and one active WS per ATW: enforced in Postgres (row locks + 
 | D20 | **One non-cancelled WS per ATW.** Partial unique index on `withdrawal_slips(atw_id) WHERE status <> 'cancelled'`. Cancelling a WS frees the ATW for a replacement slip. |
 | D21 | New migration replaces prototype objects. Do not edit `20240901000000_init.sql`. |
 | D22 | `timestamptz` in UTC in the database; display `Asia/Manila`. Document business dates are `date`. |
-| D23 | Print templates later. |
+| D23 | Browser print of Invoice, ATW/DR, and Withdrawal Slip from stored snapshots. Same read permission as the document. Letterhead and logo are reserved and not yet supplied. |
 | D24 | Accounting cannot open Users admin. Accounting reads operational documents and master data. |
 
 ### Approved statuses
@@ -97,6 +97,7 @@ lib/supabase/           # clients
 lib/auth/               # session, guards
 lib/permissions/        # role matrix = RLS
 lib/inventory/          # on-hand / reserved / available helpers and adjustment actions
+lib/print/              # print models for invoice, ATW/DR, and withdrawal slip snapshots
 lib/validation/         # Zod
 lib/business/           # remaining qty and totals (tested)
 lib/documents/          # Server Action / RPC wrappers

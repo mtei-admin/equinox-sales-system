@@ -45,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Sign in with a user from Supabase Auth. The first user is **admin**. Later signups default to **accounting** until an admin changes the role.
+Open [http://localhost:3002](http://localhost:3002). Equinox always uses port 3002. Sign in with a user from Supabase Auth. The first user is **admin**. Later signups default to **accounting** until an admin changes the role.
 
 Approved workflow, schema, and RPCs are in `docs/`. Apply both migrations:
 
@@ -56,7 +56,7 @@ Approved workflow, schema, and RPCs are in `docs/`. Apply both migrations:
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Local Next.js dev server |
+| `npm run dev` | Local Next.js dev server on port 3002 |
 | `npm run build` | Production build |
 | `npm run test:run` | Unit tests (business rules and permissions) |
 | `npm run lint` | ESLint |

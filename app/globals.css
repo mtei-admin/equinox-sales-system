@@ -24,3 +24,282 @@ body {
 ::selection {
   background: var(--color-eq-amber-soft);
 }
+
+.print-page {
+  min-height: 100%;
+  background: var(--color-eq-mist);
+  color: #111;
+}
+
+.print-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-eq-line);
+  background: white;
+  padding: 0.75rem 1rem;
+}
+
+.print-toolbar a,
+.print-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.print-toolbar a {
+  border: 1px solid var(--color-eq-line);
+  background: white;
+  color: var(--color-eq-navy);
+  text-decoration: none;
+}
+
+.print-toolbar button {
+  border: 0;
+  background: var(--color-eq-navy);
+  color: white;
+}
+
+.print-sheet {
+  position: relative;
+  width: 210mm;
+  max-width: calc(100% - 2rem);
+  margin: 1.5rem auto 2.5rem;
+  padding: 12mm 14mm 16mm;
+  background: white;
+  box-shadow: 0 8px 24px rgb(11 31 51 / 8%);
+  color: #111;
+}
+
+.print-letterhead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32mm;
+  margin-bottom: 8mm;
+  border: 1px dashed var(--color-eq-line);
+  color: var(--color-eq-slate);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.print-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.print-heading h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.print-note {
+  margin: 0.35rem 0 0;
+  max-width: 28rem;
+  font-size: 0.75rem;
+  color: #444;
+}
+
+.print-heading dl {
+  margin: 0;
+  min-width: 11rem;
+  text-align: right;
+}
+
+.print-heading dt,
+.print-heading dd,
+.print-meta dt,
+.print-meta dd,
+.print-totals dt,
+.print-totals dd {
+  display: block;
+}
+
+.print-heading dt,
+.print-meta dt,
+.print-totals dt {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.print-heading dd,
+.print-meta dd,
+.print-totals dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+}
+
+.print-status {
+  text-transform: uppercase;
+}
+
+.print-cancelled {
+  margin: 1rem 0 0;
+  border: 1px solid #991b1b;
+  padding: 0.4rem 0.6rem;
+  color: #991b1b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.print-stamp {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  z-index: 1;
+  margin: 0;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  border: 4px solid #991b1b;
+  padding: 0.15rem 0.8rem;
+  color: #991b1b;
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.print-parties,
+.print-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 2rem;
+  margin-top: 1.25rem;
+}
+
+.print-parties h2,
+.print-remarks h2 {
+  margin: 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.print-parties p,
+.print-remarks p {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+}
+
+.print-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.print-lines {
+  width: 100%;
+  margin-top: 1.25rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.print-lines th,
+.print-lines td {
+  border-bottom: 1px solid #222;
+  padding: 0.4rem 0.45rem;
+  vertical-align: top;
+  text-align: left;
+}
+
+.print-lines th {
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.print-lines .num,
+.print-totals {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.print-line-detail {
+  margin: 0.15rem 0 0;
+  color: #444;
+  font-size: 0.75rem;
+}
+
+.print-totals {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  margin: 0.8rem 0 0;
+}
+
+.print-remarks {
+  margin-top: 1.25rem;
+}
+
+.print-sign {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-top: 2.5rem;
+  font-size: 0.8rem;
+}
+
+.print-sign p {
+  margin: 0 0 2rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.print-sign span {
+  display: block;
+  min-height: 1.2rem;
+  border-top: 1px solid #111;
+  padding-top: 0.25rem;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .print-page {
+    background: white;
+  }
+
+  .print-toolbar {
+    display: none;
+  }
+
+  .print-sheet {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .print-letterhead {
+    border-color: transparent;
+    color: transparent;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}

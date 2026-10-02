@@ -21,7 +21,7 @@
 1. Push this repo to GitHub.
 2. Import the repo in Vercel. Framework preset: Next.js.
 3. Set the three env vars. Redeploy after changing env.
-4. Production URL should match any Auth redirect URLs you add in Supabase (`https://<project>.vercel.app/**` and `http://localhost:3000/**` for local).
+4. Production URL should match any Auth redirect URLs you add in Supabase (`https://<project>.vercel.app/**` and `http://localhost:3002/**` for local).
 
 ## Local Supabase (optional)
 

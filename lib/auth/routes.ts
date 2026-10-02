@@ -43,6 +43,10 @@ export function isPublicPath(pathname: string) {
   return accessForPath(pathname) === "public";
 }
 
+export function isPrintPath(pathname: string) {
+  return /\/print$/.test(pathname);
+}
+
 export function accessForPath(pathname: string): RouteAccess {
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "customers.write";
   if (/^\/items\/[^/]+\/edit$/.test(pathname)) return "items.write";

@@ -24,7 +24,7 @@ UI hide + Server Action `requireRole` + RLS SELECT + RPC role check (definer byp
 | Inventory read | yes | yes | yes | yes |
 | Inventory write | yes | no | yes | no |
 
-No `viewer` role.
+No `viewer` role. Print pages for invoices, ATW/DR, and withdrawal slips use the same read permission as the document. They do not use the service role.
 
 ## RLS
 

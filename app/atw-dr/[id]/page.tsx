@@ -41,6 +41,7 @@ export default async function AtwDetailPage({ params }: { params: Promise<{ id: 
                 <CancelAtwButton id={doc.id} />
               </Can>
             ) : null}
+            <SecondaryLink href={`/atw-dr/${doc.id}/print`}>Print</SecondaryLink>
             <SecondaryLink href="/atw-dr">Back</SecondaryLink>
           </>
         }

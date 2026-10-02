@@ -37,6 +37,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                 <CancelInvoiceButton id={invoice.id} />
               </Can>
             ) : null}
+            <SecondaryLink href={`/invoices/${invoice.id}/print`}>Print</SecondaryLink>
             <SecondaryLink href="/invoices">Back</SecondaryLink>
           </>
         }

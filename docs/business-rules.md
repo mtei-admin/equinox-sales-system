@@ -64,4 +64,4 @@ SO `closed` when remaining qty is 0 on all lines; may return to `open` if an inv
 
 ## Out of scope (v1)
 
-Payments/AR/credit limit, print templates, warehouse picker / transfers, serial-level stock.
+Payments/AR/credit limit, official letterhead and logo, warehouse picker / transfers, serial-level stock. Invoice, ATW/DR, and withdrawal slip can be printed from their stored snapshots.

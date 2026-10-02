@@ -38,6 +38,7 @@ export default async function WithdrawalSlipDetailPage({ params }: { params: Pro
                 <CancelWithdrawalSlipButton id={slip.id} />
               </Can>
             ) : null}
+            <SecondaryLink href={`/withdrawal-slips/${slip.id}/print`}>Print</SecondaryLink>
             <SecondaryLink href="/withdrawal-slips">Back</SecondaryLink>
           </>
         }
