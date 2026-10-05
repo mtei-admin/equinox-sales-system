@@ -64,6 +64,82 @@ export const resetPasswordSchema = z
     path: ["confirm_password"],
   });
 
+export const supplierSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  address: z.string().trim().max(500).optional().or(z.literal("")),
+  contact_person: z.string().trim().max(120).optional().or(z.literal("")),
+  contact_number: z.string().trim().max(40).optional().or(z.literal("")),
+  email: z.union([z.literal(""), z.string().trim().email()]),
+  tin_number: z.string().trim().max(40).optional().or(z.literal("")),
+  payment_terms: z.string().trim().max(120).optional().or(z.literal("")),
+  remarks: z.string().trim().max(500).optional().or(z.literal("")),
+  status: z.enum(["active", "inactive"]).default("active"),
+});
+
+export const purchaseOrderLineSchema = z.object({
+  item_id: z.string().uuid(),
+  ordered_qty: qty,
+  unit_cost: money,
+  uom: z.string().trim().min(1).max(20),
+});
+
+export const purchaseOrderSchema = z.object({
+  supplier_id: z.string().uuid(),
+  po_date: z.string().min(1),
+  expected_delivery_date: z.string().optional().or(z.literal("")),
+  destination: z.string().trim().max(200).optional().or(z.literal("")),
+  payment_terms: z.string().trim().max(120).optional().or(z.literal("")),
+  supplier_reference: z.string().trim().max(80).optional().or(z.literal("")),
+  remarks: z.string().trim().max(500).optional().or(z.literal("")),
+  lines: z.array(purchaseOrderLineSchema).min(1),
+});
+
+export const billOfLadingLineSchema = z.object({
+  purchase_order_item_id: z.string().uuid(),
+  shipped_qty: z.coerce.number().min(0),
+});
+
+export const billOfLadingSchema = z.object({
+  purchase_order_id: z.string().uuid(),
+  shipment_mode: z.enum(["sea", "land"]),
+  shipment_date: z.string().min(1),
+  expected_arrival_date: z.string().optional().or(z.literal("")),
+  carrier: z.string().trim().max(120).optional().or(z.literal("")),
+  vessel_name: z.string().trim().max(120).optional().or(z.literal("")),
+  voyage_number: z.string().trim().max(80).optional().or(z.literal("")),
+  container_number: z.string().trim().max(80).optional().or(z.literal("")),
+  seal_number: z.string().trim().max(80).optional().or(z.literal("")),
+  vehicle_plate_number: z.string().trim().max(40).optional().or(z.literal("")),
+  origin: z.string().trim().max(160).optional().or(z.literal("")),
+  destination: z.string().trim().max(160).optional().or(z.literal("")),
+  reference_number: z.string().trim().max(80).optional().or(z.literal("")),
+  remarks: z.string().trim().max(500).optional().or(z.literal("")),
+  lines: z.array(billOfLadingLineSchema).min(1),
+});
+
+export const receivingLineSchema = z.object({
+  bol_item_id: z.string().uuid(),
+  good_qty: z.coerce.number().min(0),
+  damaged_qty: z.coerce.number().min(0),
+  accept_excess: z.boolean().optional(),
+  record_short: z.boolean().optional(),
+  remarks: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+export const receivingReportSchema = z.object({
+  bill_of_lading_id: z.string().uuid(),
+  receiving_date: z.string().min(1),
+  delivery_receipt_number: z.string().trim().max(80).optional().or(z.literal("")),
+  supplier_invoice_number: z.string().trim().max(80).optional().or(z.literal("")),
+  received_by: z.string().uuid().optional().or(z.literal("")),
+  checked_by: z.string().uuid().optional().or(z.literal("")),
+  remarks: z.string().trim().max(500).optional().or(z.literal("")),
+  gross_weight: z.string().optional().or(z.literal("")),
+  tare_weight: z.string().optional().or(z.literal("")),
+  weighbridge_ticket: z.string().trim().max(80).optional().or(z.literal("")),
+  lines: z.array(receivingLineSchema).min(1),
+});
+
 export const customerSchema = z.object({
   name: z.string().trim().min(2).max(160),
   billing_address: z.string().trim().max(500).optional().or(z.literal("")),

@@ -43,7 +43,7 @@ export function inventorySummaryPrint(rows: InventoryStockRow[], asOf: string): 
     title: "Inventory Summary",
     asOf: formatDate(asOf),
     warehouseName: warehouseName(rows),
-    note: "On-hand is the movement ledger. Reserved is open or closed sales-order quantity not yet issued. Available = on-hand − reserved.",
+    note: "On-hand is the movement ledger. Commited is open or closed sales-order quantity not yet issued. Available = on-hand − commited.",
     lines: rows.map((row) => ({
       id: row.item_id,
       title: row.item_name,

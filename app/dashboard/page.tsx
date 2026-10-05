@@ -22,6 +22,7 @@ import {
   warehousePendingActions,
 } from "@/lib/reports/pipeline";
 import { dashboardDescription, dashboardViewFor } from "@/lib/reports/roles";
+import { purchasingIndicators } from "@/lib/purchasing/queries";
 import type { ModuleKey } from "@/types";
 
 export default async function DashboardPage({
@@ -32,10 +33,11 @@ export default async function DashboardPage({
   const profile = await requireProfile();
   const filters = parseReportFilters(await searchParams);
   const view = dashboardViewFor(profile.role);
-  const [snapshot, customers, employees] = await Promise.all([
+  const [snapshot, customers, employees, purchasing] = await Promise.all([
     loadOperationsSnapshot(filters),
     listCustomers({ q: "", status: "active" }),
     listActiveUsers(),
+    purchasingIndicators(),
   ]);
   const filtered = hasReportFilters(filters);
   const totals = pipelineTotals(snapshot.orders, snapshot.invoices, snapshot.atw);
@@ -87,6 +89,23 @@ export default async function DashboardPage({
       {view.showFullCounts ? (
         <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {tiles.map((tile) => (
+            <Link key={tile.label} href={tile.href}>
+              <Card className="p-4 hover:border-eq-navy">
+                <p className="text-xs uppercase tracking-wide text-eq-slate">{tile.label}</p>
+                <p className="mt-2 text-3xl font-semibold text-eq-ink">{tile.value}</p>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      ) : null}
+      {canAccessModule(profile.role, "purchase-orders") ? (
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: "Awaiting approval", value: purchasing.awaiting, href: "/purchase-orders?status=for_approval" },
+            { label: "Open purchase orders", value: purchasing.openPo, href: "/purchase-orders" },
+            { label: "Incoming shipments", value: purchasing.inTransit, href: "/bills-of-lading" },
+            { label: "Open shortages", value: purchasing.openShort, href: "/receiving-reports" },
+          ].map((tile) => (
             <Link key={tile.label} href={tile.href}>
               <Card className="p-4 hover:border-eq-navy">
                 <p className="text-xs uppercase tracking-wide text-eq-slate">{tile.label}</p>

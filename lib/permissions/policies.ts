@@ -4,8 +4,16 @@ export type Permission =
   | "users.manage"
   | "customers.read"
   | "customers.write"
+  | "suppliers.read"
+  | "suppliers.write"
   | "items.read"
   | "items.write"
+  | "purchase-orders.read"
+  | "purchase-orders.write"
+  | "bills-of-lading.read"
+  | "bills-of-lading.write"
+  | "receiving-reports.read"
+  | "receiving-reports.write"
   | "sales-orders.read"
   | "sales-orders.write"
   | "invoices.read"
@@ -23,8 +31,16 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "users.manage",
     "customers.read",
     "customers.write",
+    "suppliers.read",
+    "suppliers.write",
     "items.read",
     "items.write",
+    "purchase-orders.read",
+    "purchase-orders.write",
+    "bills-of-lading.read",
+    "bills-of-lading.write",
+    "receiving-reports.read",
+    "receiving-reports.write",
     "sales-orders.read",
     "sales-orders.write",
     "invoices.read",
@@ -40,8 +56,12 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   sales: [
     "customers.read",
     "customers.write",
+    "suppliers.read",
     "items.read",
     "items.write",
+    "purchase-orders.read",
+    "bills-of-lading.read",
+    "receiving-reports.read",
     "sales-orders.read",
     "sales-orders.write",
     "invoices.read",
@@ -54,7 +74,13 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
   warehouse: [
     "customers.read",
+    "suppliers.read",
     "items.read",
+    "purchase-orders.read",
+    "bills-of-lading.read",
+    "bills-of-lading.write",
+    "receiving-reports.read",
+    "receiving-reports.write",
     "sales-orders.read",
     "invoices.read",
     "atw-dr.read",
@@ -66,7 +92,11 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   ],
   accounting: [
     "customers.read",
+    "suppliers.read",
     "items.read",
+    "purchase-orders.read",
+    "bills-of-lading.read",
+    "receiving-reports.read",
     "sales-orders.read",
     "invoices.read",
     "atw-dr.read",
@@ -80,8 +110,16 @@ export const ALL_PERMISSIONS: Permission[] = [
   "users.manage",
   "customers.read",
   "customers.write",
+  "suppliers.read",
+  "suppliers.write",
   "items.read",
   "items.write",
+  "purchase-orders.read",
+  "purchase-orders.write",
+  "bills-of-lading.read",
+  "bills-of-lading.write",
+  "receiving-reports.read",
+  "receiving-reports.write",
   "sales-orders.read",
   "sales-orders.write",
   "invoices.read",

@@ -27,6 +27,8 @@
 - Only admin may reset a user password; new password must be at least 8 characters and match confirmation.
 - Opening a sales order is rejected when available qty is insufficient. Posted decrease adjustments cannot take available below reserved. Issuing a WS decreases on-hand; cancelling an issued WS restores it.
 - Invoice, ATW/DR, and withdrawal slip print use stored snapshot fields. Print routes use the same read permission as the document. Inventory summary print lists current on-hand, reserved, and available and uses inventory read.
+- Purchase order amount is ordered qty × unit cost. Remaining to ship and remaining to receive use the same rounding as money totals.
+- A purchase order is not completed while a shortage is unresolved. An accepted short can cover the gap. Excess and damaged quantities are separate from usable stock in the quantity helper.
 
 ## Must-have (SQL / staging — after `supabase db push`)
 
@@ -35,6 +37,7 @@
 - Two concurrent `create_withdrawal_slip` calls for the same released ATW: one fails.
 - Cancel WS then create replacement: allowed.
 - Accounting `create_sales_order` RPC: rejected.
+- Purchasing SQL (`tests/sql/validate_purchasing.sql`): full and partial ship/receive, short, damaged, excess, double post, overlapping BOL post, receiving cancellation reversal, and unresolved shortage.
 
 ## Commands
 

@@ -17,7 +17,8 @@
 | 8 | Dashboard and reports (D19) | done |
 | 9 | Inventory (on-hand / reserved / available, adjustments) | done |
 | 10 | Browser print for Invoice, ATW/DR, and Withdrawal Slip | done |
-| 11 | Playwright, Vercel, deployment refresh | not started |
+| 11 | Purchasing: suppliers, purchase orders, bills of lading, receiving reports, inventory receipt | done |
+| 12 | Playwright, Vercel, deployment refresh | not started |
 
 v1 out of scope: payments, official letterhead and logo, separate ATW/DR tables, multiple active WS per ATW, warehouse picker.
 

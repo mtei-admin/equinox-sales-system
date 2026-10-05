@@ -22,6 +22,14 @@ const ROUTE_RULES: RouteRule[] = [
   { prefix: "/customers", access: "customers.read" },
   { prefix: "/items/new", access: "items.write" },
   { prefix: "/items", access: "items.read" },
+  { prefix: "/suppliers/new", access: "suppliers.write" },
+  { prefix: "/suppliers", access: "suppliers.read" },
+  { prefix: "/purchase-orders/new", access: "purchase-orders.write" },
+  { prefix: "/purchase-orders", access: "purchase-orders.read" },
+  { prefix: "/bills-of-lading/new", access: "bills-of-lading.write" },
+  { prefix: "/bills-of-lading", access: "bills-of-lading.read" },
+  { prefix: "/receiving-reports/new", access: "receiving-reports.write" },
+  { prefix: "/receiving-reports", access: "receiving-reports.read" },
   { prefix: "/sales-orders/new", access: "sales-orders.write" },
   { prefix: "/sales-orders", access: "sales-orders.read" },
   { prefix: "/invoices/new", access: "invoices.write" },
@@ -52,6 +60,8 @@ export function isPrintPath(pathname: string) {
 
 export function accessForPath(pathname: string): RouteAccess {
   if (/^\/customers\/[^/]+\/edit$/.test(pathname)) return "customers.write";
+  if (/^\/suppliers\/[^/]+\/edit$/.test(pathname)) return "suppliers.write";
+  if (/^\/purchase-orders\/[^/]+\/edit$/.test(pathname)) return "purchase-orders.write";
   if (/^\/items\/[^/]+\/edit$/.test(pathname)) return "items.write";
   if (/^\/sales-orders\/[^/]+\/edit$/.test(pathname)) return "sales-orders.write";
   if (/^\/withdrawal-slips\/[^/]+\/edit$/.test(pathname)) return "withdrawal-slips.write";

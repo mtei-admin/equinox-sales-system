@@ -85,8 +85,9 @@ try {
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_atw.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_ws.sql")
   Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_inventory.sql")
+  Invoke-PsqlFile -Database "equinox_phase1" -FilePath (Join-Path $root "tests\sql\validate_purchasing.sql")
 
-  Write-Host "PHASE 1-7 + INVENTORY DATABASE VALIDATION PASSED"
+  Write-Host "PHASE 1-7 + INVENTORY + PURCHASING DATABASE VALIDATION PASSED"
   exit 0
 }
 finally {

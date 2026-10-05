@@ -28,7 +28,7 @@ export function InventorySummaryPrintView({ summary }: { summary: InventorySumma
           <tr>
             <th>Item</th>
             <th className="num">On hand</th>
-            <th className="num">Reserved</th>
+            <th className="num">Commited</th>
             <th className="num">Available</th>
             <th>Status</th>
           </tr>
@@ -61,7 +61,7 @@ export function InventorySummaryPrintView({ summary }: { summary: InventorySumma
           <dd>{summary.totals.onHand}</dd>
         </div>
         <div>
-          <dt>Reserved</dt>
+          <dt>Commited</dt>
           <dd>{summary.totals.reserved}</dd>
         </div>
         <div>

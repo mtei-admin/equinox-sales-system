@@ -51,7 +51,7 @@ Quantity remaining and one active WS per ATW: enforced in Postgres (row locks + 
 | D14 | `invoice_number` unique among invoices with status ≠ `cancelled`. Cancelled numbers may be reused. Uniqueness is global (not per year). |
 | D15 | `order_type` and `term` are free text in v1. |
 | D16 | SO `delivery_address` defaults from customer `billing_address`, then snapshot; user may edit on the SO. |
-| D17 | Inventory: movement ledger. On-hand = sum of movements. Reserved = open/closed SO qty not yet issued. Available = on-hand − reserved. Stock leaves on **WS issued**. Adjustments are documents. One warehouse now (`warehouse_id` for later locations). |
+| D17 | Inventory: movement ledger. On-hand = sum of movements. Reserved = open/closed SO qty not yet issued. Available = on-hand − reserved. Stock leaves on **WS issued**. Stock increases on a **posted receiving report** (good qty only). Adjustments are documents. One warehouse now (`warehouse_id` for later locations). |
 | D18 | Payments, AR, credit limit: **out of scope**. |
 | D19 | v1 reports: remaining SO qty, remaining invoice qty, ATW without a non-cancelled WS. |
 | D20 | **One non-cancelled WS per ATW.** Partial unique index on `withdrawal_slips(atw_id) WHERE status <> 'cancelled'`. Cancelling a WS frees the ATW for a replacement slip. |
@@ -59,6 +59,7 @@ Quantity remaining and one active WS per ATW: enforced in Postgres (row locks + 
 | D22 | `timestamptz` in UTC in the database; display `Asia/Manila`. Document business dates are `date`. |
 | D23 | Browser print of Invoice, ATW/DR, and Withdrawal Slip from stored snapshots, plus the current inventory summary (on-hand, reserved, available). Same read permission as the screen. Letterhead and logo are reserved and not yet supplied. |
 | D24 | Accounting cannot open Users admin. Accounting reads operational documents and master data. |
+| D25 | Purchasing: Supplier → Purchase Order → Bill of Lading → Receiving Report → existing inventory ledger. PO approval and BOL posting do not move stock. One PO has many BOLs; one BOL has many receiving reports. Numbers `SUP-`, `PO-`, `BOL-`, `RR-` via `next_doc_number`. No item code and no UOM conversion; UOM is entered on the PO line. No attachments, AP, or GL. |
 
 ### Approved statuses
 

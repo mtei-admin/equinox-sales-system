@@ -3,7 +3,22 @@ export type {
   AtwDocumentType,
   AtwRow,
   AtwStatus,
+  BillOfLadingItemRow,
+  BillOfLadingRow,
+  BolStatus,
   CustomerRow,
+  DiscrepancyStatus,
+  DiscrepancyType,
+  PoStatus,
+  PurchaseOrderItemRow,
+  PurchaseOrderRow,
+  PurchasingEventRow,
+  ReceivingDiscrepancyRow,
+  ReceivingReportItemRow,
+  ReceivingReportRow,
+  RrStatus,
+  ShipmentMode,
+  SupplierRow,
   InvoiceItemRow,
   InvoiceRow,
   InvoiceStatus,
@@ -30,7 +45,11 @@ export type DocumentKind = "customer" | "sales_order" | "invoice" | "atw_dr" | "
 export type ModuleKey =
   | "dashboard"
   | "customers"
+  | "suppliers"
   | "items"
+  | "purchase-orders"
+  | "bills-of-lading"
+  | "receiving-reports"
   | "users"
   | "sales-orders"
   | "invoices"

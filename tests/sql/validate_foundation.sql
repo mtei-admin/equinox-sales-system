@@ -162,11 +162,15 @@ begin
 
   perform public._phase1_record(
     'numbering', 'document_sequences rows',
-    (select count(*) from public.document_sequences) = 4
+    (select count(*) from public.document_sequences) = 8
       and exists (select 1 from public.document_sequences where doc_type = 'sales_order')
       and exists (select 1 from public.document_sequences where doc_type = 'atw')
       and exists (select 1 from public.document_sequences where doc_type = 'withdrawal_slip')
       and exists (select 1 from public.document_sequences where doc_type = 'inventory_adjustment')
+      and exists (select 1 from public.document_sequences where doc_type = 'supplier')
+      and exists (select 1 from public.document_sequences where doc_type = 'purchase_order')
+      and exists (select 1 from public.document_sequences where doc_type = 'bill_of_lading')
+      and exists (select 1 from public.document_sequences where doc_type = 'receiving_report')
       and not exists (select 1 from public.document_sequences where doc_type = 'invoice'),
     'SO/ATW/WS/ADJ; invoice is typed'
   );

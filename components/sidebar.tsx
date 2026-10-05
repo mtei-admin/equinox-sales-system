@@ -18,6 +18,10 @@ import {
   BarChart3,
   Boxes,
   ClipboardPen,
+  Ship,
+  PackageCheck,
+  ShoppingCart,
+  Building2,
   Warehouse,
   X,
 } from "lucide-react";
@@ -37,7 +41,17 @@ const NAV: NavGroup[] = [
     label: "Master Data",
     items: [
       { href: "/customers", label: "Customers", module: "customers", icon: Users },
+      { href: "/suppliers", label: "Suppliers", module: "suppliers", icon: Building2 },
       { href: "/items", label: "Items", module: "items", icon: Package },
+    ],
+  },
+  {
+    id: "purchasing",
+    label: "Purchasing",
+    items: [
+      { href: "/purchase-orders", label: "Purchase orders", module: "purchase-orders", icon: ShoppingCart },
+      { href: "/bills-of-lading", label: "Bills of lading", module: "bills-of-lading", icon: Ship },
+      { href: "/receiving-reports", label: "Receiving reports", module: "receiving-reports", icon: PackageCheck },
     ],
   },
   {

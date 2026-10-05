@@ -13,16 +13,33 @@ const WRITES: Permission[] = [
   "atw-dr.write",
   "withdrawal-slips.write",
   "inventory.write",
+  "suppliers.write",
+  "purchase-orders.write",
+  "bills-of-lading.write",
+  "receiving-reports.write",
 ];
 
 const EXPECTED: Record<UserRole, Permission[]> = {
   admin: [...ALL_PERMISSIONS],
   sales: ALL_PERMISSIONS.filter(
-    (p) => p !== "users.manage" && p !== "withdrawal-slips.write" && p !== "inventory.write",
+    (p) =>
+      p !== "users.manage" &&
+      p !== "withdrawal-slips.write" &&
+      p !== "inventory.write" &&
+      p !== "suppliers.write" &&
+      p !== "purchase-orders.write" &&
+      p !== "bills-of-lading.write" &&
+      p !== "receiving-reports.write",
   ),
   warehouse: [
     "customers.read",
+    "suppliers.read",
     "items.read",
+    "purchase-orders.read",
+    "bills-of-lading.read",
+    "bills-of-lading.write",
+    "receiving-reports.read",
+    "receiving-reports.write",
     "sales-orders.read",
     "invoices.read",
     "atw-dr.read",
@@ -34,7 +51,11 @@ const EXPECTED: Record<UserRole, Permission[]> = {
   ],
   accounting: [
     "customers.read",
+    "suppliers.read",
     "items.read",
+    "purchase-orders.read",
+    "bills-of-lading.read",
+    "receiving-reports.read",
     "sales-orders.read",
     "invoices.read",
     "atw-dr.read",
