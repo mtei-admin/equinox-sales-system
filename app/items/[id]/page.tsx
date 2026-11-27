@@ -58,6 +58,10 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
             <dd className="mt-1 text-sm">{stock ? formatQty(stock.reserved) : "—"}</dd>
           </div>
           <div>
+            <dt className="text-xs uppercase text-eq-slate">Unallocated</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.unallocated) : "—"}</dd>
+          </div>
+          <div>
             <dt className="text-xs uppercase text-eq-slate">Available</dt>
             <dd className="mt-1 text-sm">{stock ? formatQty(stock.available) : "—"}</dd>
           </div>

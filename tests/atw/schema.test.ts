@@ -3,22 +3,35 @@ import { atwSchema } from "@/lib/validation/schemas";
 
 const invoiceId = "22222222-2222-4222-8222-222222222222";
 const lineId = "11111111-1111-4111-8111-111111111111";
+const warehouseId = "33333333-3333-4333-8333-333333333333";
 
 describe("ATW/DR schema", () => {
   it("accepts ATW and DR with at least one line", () => {
     const atw = atwSchema.safeParse({
       invoice_id: invoiceId,
+      warehouse_id: warehouseId,
       document_type: "atw",
       lines: [{ invoice_item_id: lineId, quantity: "4" }],
     });
     expect(atw.success).toBe(true);
     const dr = atwSchema.safeParse({
       invoice_id: invoiceId,
+      warehouse_id: warehouseId,
       document_type: "dr",
       remarks: "Gate 2",
       lines: [{ invoice_item_id: lineId, quantity: 1 }],
     });
     expect(dr.success).toBe(true);
+  });
+
+  it("rejects a missing source warehouse", () => {
+    expect(
+      atwSchema.safeParse({
+        invoice_id: invoiceId,
+        document_type: "atw",
+        lines: [{ invoice_item_id: lineId, quantity: 1 }],
+      }).success,
+    ).toBe(false);
   });
 
   it("rejects missing invoice, empty lines, invalid type, and non-positive qty", () => {

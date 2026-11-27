@@ -551,13 +551,17 @@ export async function listWarehouses() {
 export async function listWarehouseOnHand(): Promise<WarehouseOnHand[]> {
   return safeQuery(async () => {
     const supabase = await createServerSupabaseClient();
-    const { data, error } = await supabase.from("inventory_stock").select("warehouse_id, warehouse_name, item_id, on_hand");
+    const { data, error } = await supabase
+      .from("inventory_stock")
+      .select("warehouse_id, warehouse_name, item_id, on_hand, reserved, available");
     if (error) throw error;
     return (data ?? []).map((row) => ({
       warehouse_id: String(row.warehouse_id),
       warehouse_name: String(row.warehouse_name),
       item_id: String(row.item_id),
       on_hand: Number(row.on_hand),
+      reserved: Number(row.reserved ?? 0),
+      available: Number(row.available ?? 0),
     }));
   }, [] as WarehouseOnHand[]);
 }
@@ -575,6 +579,7 @@ function mapCompanyRow(row: Record<string, unknown>): CompanyStockRow {
     reserved: Number(row.reserved),
     available: Number(row.available),
     quarantine: Number(row.quarantine ?? 0),
+    unallocated: Number(row.unallocated ?? 0),
   };
 }
 

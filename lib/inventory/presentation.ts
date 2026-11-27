@@ -14,6 +14,7 @@ export type CompanyStockRow = {
   on_hand: number;
   incoming: number;
   reserved: number;
+  unallocated: number;
   available: number;
   quarantine: number;
 };
@@ -23,6 +24,8 @@ export type WarehouseOnHand = {
   warehouse_name: string;
   item_id: string;
   on_hand: number;
+  reserved: number;
+  available: number;
 };
 
 export function companyStockFromWarehouseRows(rows: InventoryStockRow[]): CompanyStockRow[] {
@@ -40,6 +43,7 @@ export function companyStockFromWarehouseRows(rows: InventoryStockRow[]): Compan
         on_hand: Number(row.on_hand),
         incoming: 0,
         reserved: Number(row.reserved),
+        unallocated: 0,
         available: 0,
         quarantine: 0,
       });
@@ -50,6 +54,7 @@ export function companyStockFromWarehouseRows(rows: InventoryStockRow[]): Compan
   }
   for (const row of byItem.values()) {
     row.available = roundQty(row.on_hand - row.reserved);
+    row.unallocated = 0;
   }
   return [...byItem.values()];
 }
@@ -68,4 +73,18 @@ export const LEGACY_WAREHOUSE_NAME = "Main";
 
 export function isLegacyWarehouse(name: string) {
   return name.trim().toLowerCase() === LEGACY_WAREHOUSE_NAME.toLowerCase();
+}
+
+export function warehouseAvailable(onHand: number, allocated: number) {
+  return roundQty(onHand - allocated);
+}
+
+export function commitmentSplit(committed: number, allocated: number) {
+  const committedQty = roundQty(committed);
+  const allocatedQty = roundQty(Math.max(0, Math.min(allocated, Math.max(committedQty, 0))));
+  return {
+    committed: committedQty,
+    allocated: allocatedQty,
+    unallocated: roundQty(Math.max(committedQty - allocatedQty, 0)),
+  };
 }

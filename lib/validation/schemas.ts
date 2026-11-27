@@ -213,6 +213,7 @@ export const invoiceSchema = z.object({
 
 export const atwSchema = z.object({
   invoice_id: z.string().uuid("Select an invoice"),
+  warehouse_id: z.string().uuid("Select a warehouse"),
   document_type: z.enum(["atw", "dr"]).default("atw"),
   remarks: optionalText,
   lines: z.array(

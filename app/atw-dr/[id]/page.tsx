@@ -4,13 +4,15 @@ import { StatusBadge } from "@/components/status-badge";
 import { AuditFields } from "@/components/audit-fields";
 import { Can } from "@/components/can";
 import { CancelAtwButton, ReleaseAtwButton } from "@/components/forms/atw-status-actions";
-import { getAtw } from "@/lib/data/queries";
+import { getAtw, listWarehouses } from "@/lib/data/queries";
 import { formatDate, formatMoney, formatQty } from "@/lib/utils";
 
 export default async function AtwDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const doc = await getAtw(id);
   if (!doc) notFound();
+  const warehouses = await listWarehouses();
+  const warehouseName = warehouses.find((warehouse) => warehouse.id === doc.warehouse_id)?.name ?? "Warehouse";
   const canRelease = doc.status === "draft";
   const canCancel = doc.status !== "cancelled";
   const typeLabel = doc.document_type === "dr" ? "Delivery Receipt" : "ATW";
@@ -70,6 +72,10 @@ export default async function AtwDetailPage({ params }: { params: Promise<{ id: 
                 {doc.so_number || "Sales order"}
               </a>
             </dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase tracking-wide text-eq-slate">Source warehouse</dt>
+            <dd className="mt-1 text-sm">{warehouseName}</dd>
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wide text-eq-slate">Customer</dt>

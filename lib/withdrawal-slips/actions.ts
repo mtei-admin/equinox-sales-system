@@ -34,6 +34,7 @@ export type WsSource =
       atw_number: string;
       document_type: string;
       customer_name: string;
+      warehouse_id: string;
       lines: WsSourceLine[];
     }
   | { ok: false; error: string; existingId?: string };
@@ -92,6 +93,7 @@ export async function loadWsSource(atwId: string): Promise<WsSource> {
     atw_number: doc.atw_number,
     document_type: doc.document_type,
     customer_name: doc.customer_name,
+    warehouse_id: doc.warehouse_id,
     lines: doc.atw_document_items.map((line) => ({
       atw_item_id: line.id,
       description: line.description,
@@ -142,6 +144,9 @@ export async function saveWithdrawalSlip(formData: FormData): Promise<WsActionRe
     if (!("atw_id" in parsed.data)) return { ok: false, error: "Select an ATW/DR" };
     const atw = await getAtw(parsed.data.atw_id);
     if (!atw) return { ok: false, error: "ATW/DR not found" };
+    if (parsed.data.warehouse_id !== atw.warehouse_id) {
+      return { ok: false, error: "Withdrawal slip warehouse must match the ATW/DR source warehouse" };
+    }
     assertCanCreateWithdrawalSlip(
       atw.status,
       Boolean(atw.active_withdrawal_slip_id),

@@ -18,11 +18,13 @@ function toDraft(line: AtwSourceLine): DraftLine {
 
 export function AtwForm({
   invoices,
+  warehouses,
   initialSource,
   initialError,
   initialType = "atw",
 }: {
   invoices: InvoiceRow[];
+  warehouses: { id: string; name: string }[];
   initialSource: {
     invoice_id: string;
     invoice_number: string;
@@ -35,6 +37,7 @@ export function AtwForm({
 }) {
   const router = useRouter();
   const [invoiceId, setInvoiceId] = useState(initialSource?.invoice_id ?? invoices[0]?.id ?? "");
+  const [warehouseId, setWarehouseId] = useState("");
   const [customerName, setCustomerName] = useState(initialSource?.customer_name ?? "");
   const [lines, setLines] = useState<DraftLine[]>(initialSource?.lines.map(toDraft) ?? []);
   const [sourceError, setSourceError] = useState<string | null>(initialError ?? null);
@@ -86,6 +89,7 @@ export function AtwForm({
     setError(null);
     const payload = {
       invoice_id: invoiceId,
+      warehouse_id: warehouseId,
       document_type: String(formData.get("document_type") || "atw"),
       remarks: String(formData.get("remarks") || ""),
       lines: selectedLines.map((line) => ({
@@ -115,6 +119,14 @@ export function AtwForm({
     <Card className="p-5">
       <form action={onSubmit} className="space-y-5">
         <div className="grid gap-4 sm:grid-cols-2">
+          <FormField label="Source warehouse">
+            <select className={inputClassName} value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)} required>
+              <option value="">Select warehouse…</option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+              ))}
+            </select>
+          </FormField>
           <FormField label="Document type">
             <select className={inputClassName} name="document_type" defaultValue={initialType}>
               <option value="atw">ATW</option>

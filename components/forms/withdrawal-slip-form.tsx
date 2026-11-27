@@ -84,16 +84,15 @@ export function WithdrawalSlipForm({
           {typeLabel} <span className="font-mono text-eq-ink">{atwNumber}</span> · {customerName}
         </p>
         <FormField label="Warehouse">
-          <select className={inputClassName} name="warehouse_id" defaultValue={warehouseId} required disabled={editing}>
-            <option value="">Select warehouse…</option>
-            {warehouses.map((warehouse) => (
+          <select className={inputClassName} name="warehouse_id" defaultValue={warehouseId} required disabled>
+            {(warehouses.filter((warehouse) => !warehouseId || warehouse.id === warehouseId)).map((warehouse) => (
               <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
             ))}
           </select>
         </FormField>
         <p className="text-xs text-eq-slate">
-          Every ATW/DR line is copied at the same quantity. Quantities cannot be changed. One non-cancelled slip is
-          allowed per ATW/DR.
+          The slip uses the ATW/DR source warehouse. Every line is copied at the same quantity. One non-cancelled slip
+          is allowed per ATW/DR. Issue checks that warehouse&apos;s on-hand stock and its allocation.
         </p>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">

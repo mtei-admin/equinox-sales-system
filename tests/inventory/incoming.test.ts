@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { companyStockFromWarehouseRows, incomingOutstanding } from "@/lib/inventory/presentation";
+import { commitmentSplit, companyStockFromWarehouseRows, incomingOutstanding, warehouseAvailable } from "@/lib/inventory/presentation";
 import type { InventoryStockRow } from "@/types/database";
 
 function row(partial: Partial<InventoryStockRow> & Pick<InventoryStockRow, "item_id" | "warehouse_id" | "on_hand" | "reserved">): InventoryStockRow {
@@ -32,6 +32,28 @@ describe("company stock", () => {
       row({ item_id: "sku", warehouse_id: "main", on_hand: 0, reserved: 10 }),
     ]);
     expect(item?.available).toBe(-10);
+  });
+});
+
+describe("warehouse allocation", () => {
+  it("counts allocated and unallocated commitments once", () => {
+    const split = commitmentSplit(10, 6 + 2);
+    expect(split).toEqual({ committed: 10, allocated: 8, unallocated: 2 });
+    expect(split.allocated + split.unallocated).toBe(split.committed);
+
+    const open = commitmentSplit(40, 0);
+    expect(open).toEqual({ committed: 40, allocated: 0, unallocated: 40 });
+    expect(warehouseAvailable(60, 0)).toBe(60);
+    expect(warehouseAvailable(20, 0)).toBe(20);
+    expect(60 + 20 - open.committed).toBe(40);
+  });
+
+  it("keeps a partial issue from releasing the same commitment twice", () => {
+    const before = commitmentSplit(10, 4 + 3);
+    const afterIssue = commitmentSplit(7, 4);
+    expect(before.allocated + before.unallocated).toBe(10);
+    expect(afterIssue).toEqual({ committed: 7, allocated: 4, unallocated: 3 });
+    expect(afterIssue.allocated + afterIssue.unallocated).toBe(afterIssue.committed);
   });
 });
 

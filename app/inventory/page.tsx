@@ -31,7 +31,7 @@ export default async function InventoryStockPage({
     <>
       <PageHeader
         title="Stock on hand"
-        description="On hand follows the movement ledger for the selected warehouse. Incoming, Commited, and Available are company-wide. Available = on hand − commited."
+        description="On hand is the movement ledger. Commited at a warehouse is the ATW/DR quantity allocated there and not yet issued. Available = on hand − commited. Incoming stays company-wide."
         actions={
           <>
             <SecondaryLink href="/inventory/print">Print</SecondaryLink>
@@ -63,9 +63,9 @@ export default async function InventoryStockPage({
       <Card className="mb-4 p-4">
         <h2 className="text-sm font-semibold text-eq-ink">All warehouses</h2>
         <p className="mt-1 text-xs text-eq-slate">
-          Incoming, Commited, and Available are company-wide. They are not calculated per warehouse.
+          Commited includes allocated and unallocated sales-order quantity exactly once. Incoming is company-wide.
         </p>
-        <dl className="mt-3 grid gap-3 sm:grid-cols-4">
+        <dl className="mt-3 grid gap-3 sm:grid-cols-5">
           <div>
             <dt className="text-xs uppercase text-eq-slate">On hand</dt>
             <dd className="mt-1 text-sm">{formatQty(company.reduce((sum, row) => sum + row.on_hand, 0))}</dd>
@@ -79,6 +79,10 @@ export default async function InventoryStockPage({
             <dd className="mt-1 text-sm">{formatQty(company.reduce((sum, row) => sum + row.reserved, 0))}</dd>
           </div>
           <div>
+            <dt className="text-xs uppercase text-eq-slate">Unallocated</dt>
+            <dd className="mt-1 text-sm">{formatQty(company.reduce((sum, row) => sum + row.unallocated, 0))}</dd>
+          </div>
+          <div>
             <dt className="text-xs uppercase text-eq-slate">Available</dt>
             <dd className="mt-1 text-sm">{formatQty(company.reduce((sum, row) => sum + row.available, 0))}</dd>
           </div>
@@ -88,12 +92,12 @@ export default async function InventoryStockPage({
         <DataTable
           headers={
             showCompany
-              ? ["Item", "On hand", "Incoming", "Commited", "Available", "Quarantine", "Status"]
-              : ["Item", `${warehouse?.name ?? "Warehouse"} on hand`, "Status"]
+              ? ["Item", "On hand", "Incoming", "Commited", "Unallocated", "Available", "Quarantine", "Status"]
+              : ["Item", "On hand", "Commited", "Available", "Status"]
           }
         >
           {company.map((row) => {
-            const warehouseQty = onHand.find((entry) => entry.item_id === row.item_id && entry.warehouse_id === warehouse?.id)?.on_hand ?? 0;
+            const warehouseRow = onHand.find((entry) => entry.item_id === row.item_id && entry.warehouse_id === warehouse?.id);
             return (
               <tr key={row.item_id} className="hover:bg-eq-mist/60">
                 <td className="px-4 py-3">
@@ -102,15 +106,21 @@ export default async function InventoryStockPage({
                   </a>
                   <p className="text-xs text-eq-slate">{[row.brand, row.model, row.barcode].filter(Boolean).join(" · ") || "—"}</p>
                 </td>
-                <td className="px-4 py-3">{formatQty(showCompany ? row.on_hand : warehouseQty)}</td>
+                <td className="px-4 py-3">{formatQty(showCompany ? row.on_hand : warehouseRow?.on_hand ?? 0)}</td>
                 {showCompany ? (
                   <>
                     <td className="px-4 py-3">{formatQty(row.incoming)}</td>
                     <td className="px-4 py-3">{formatQty(row.reserved)}</td>
+                    <td className="px-4 py-3">{formatQty(row.unallocated)}</td>
                     <td className="px-4 py-3 font-medium">{formatQty(row.available)}</td>
                     <td className="px-4 py-3">{formatQty(row.quarantine)}</td>
                   </>
-                ) : null}
+                ) : (
+                  <>
+                    <td className="px-4 py-3">{formatQty(warehouseRow?.reserved ?? 0)}</td>
+                    <td className="px-4 py-3 font-medium">{formatQty(warehouseRow?.available ?? 0)}</td>
+                  </>
+                )}
                 <td className="px-4 py-3">
                   <StatusBadge status={row.item_status} />
                 </td>

@@ -124,9 +124,14 @@ begin
   avail := public.inventory_available(wh, bare);
   on_hand := public.inventory_on_hand(wh, bare);
   perform public._phase_inv_record(
-    'qty', 'open SO reserves quantity',
-    on_hand = 5 and reserved = 3 and avail = 2,
-    format('on_hand=%s reserved=%s available=%s', on_hand, reserved, avail)
+    'qty', 'open SO stays unallocated until ATW/DR',
+    on_hand = 5
+      and reserved = 0
+      and avail = 5
+      and public.inventory_committed(bare) = 3
+      and public.inventory_unallocated(bare) = 3,
+    format('on_hand=%s reserved=%s available=%s committed=%s unallocated=%s',
+      on_hand, reserved, avail, public.inventory_committed(bare), public.inventory_unallocated(bare))
   );
 
   select id into soi_id from public.sales_order_items where sales_order_id = so_id;
@@ -137,7 +142,11 @@ begin
   ));
   perform public.post_invoice(inv_id);
   reserved := public.inventory_reserved(wh, bare);
-  perform public._phase_inv_record('qty', 'invoice does not change reserved', reserved = 3, reserved::text);
+  perform public._phase_inv_record(
+    'qty', 'invoice does not allocate a warehouse',
+    reserved = 0 and public.inventory_committed(bare) = 3 and public.inventory_unallocated(bare) = 3,
+    format('reserved=%s committed=%s', reserved, public.inventory_committed(bare))
+  );
 
   select id into invi_id from public.invoice_items where invoice_id = inv_id;
   atw_id := public.create_atw_document(jsonb_build_object(
@@ -146,6 +155,12 @@ begin
     'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', invi_id, 'quantity', 3))
   ));
   perform public.release_atw_document(atw_id);
+  reserved := public.inventory_reserved(wh, bare);
+  perform public._phase_inv_record(
+    'qty', 'ATW allocates the source warehouse',
+    reserved = 3 and public.inventory_committed(bare) = 3 and public.inventory_unallocated(bare) = 0,
+    format('reserved=%s unallocated=%s', reserved, public.inventory_unallocated(bare))
+  );
 
   perform set_config('request.jwt.claim.sub', wh_id::text, true);
   ws_id := public.create_withdrawal_slip(jsonb_build_object('atw_id', atw_id));

@@ -43,7 +43,7 @@ export function inventorySummaryPrint(rows: InventoryStockRow[], asOf: string): 
     title: "Inventory Summary",
     asOf: formatDate(asOf),
     warehouseName: warehouseName(rows),
-    note: "Company-wide summary. On-hand is the movement ledger. Commited is open or closed sales-order quantity not yet issued and is not split by warehouse. Available = on-hand − commited.",
+    note: "Company-wide summary. On-hand is the movement ledger. Commited counts allocated and unallocated sales-order quantity once. Available = on-hand − commited. Incoming is company-wide.",
     lines: rows.map((row) => ({
       id: row.item_id,
       title: row.item_name,

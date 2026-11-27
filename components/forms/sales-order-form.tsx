@@ -266,8 +266,9 @@ export function SalesOrderForm({
           </div>
           <p className="mt-3 text-sm text-eq-slate">
             Unit price and UOM are entered on the line. Amount = quantity × unit price. Opening the order commits
-            the quantity even when available is short. Available can go negative. Physical withdrawal is still limited
-            to on-hand stock at the withdrawal slip warehouse.
+            the quantity even when available is short. Available can go negative. The commitment is assigned to a
+            warehouse when the ATW/DR source warehouse is confirmed. A withdrawal slip can issue only that warehouse
+            allocation, and only up to on-hand stock there.
           </p>
         </div>
 

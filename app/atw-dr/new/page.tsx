@@ -1,6 +1,6 @@
 import { Card, PageHeader } from "@/components/page-header";
 import { AtwForm } from "@/components/forms/atw-form";
-import { listInvoices } from "@/lib/data/queries";
+import { listInvoices, listWarehouses } from "@/lib/data/queries";
 import { loadAtwSource } from "@/lib/atw/actions";
 import { requirePermission } from "@/lib/auth/guards";
 
@@ -13,6 +13,7 @@ export default async function NewAtwPage({
   const params = await searchParams;
   const requested = Array.isArray(params.invoice_id) ? params.invoice_id[0] : params.invoice_id;
   const invoices = await listInvoices({ q: "", status: "posted" });
+  const warehouses = await listWarehouses();
   const selectedId = requested && invoices.some((invoice) => invoice.id === requested) ? requested : invoices[0]?.id;
   const source = selectedId ? await loadAtwSource(selectedId) : null;
 
@@ -29,6 +30,7 @@ export default async function NewAtwPage({
       ) : (
         <AtwForm
           invoices={invoices}
+          warehouses={warehouses}
           initialSource={source && source.ok ? source : null}
           initialError={source && !source.ok ? source.error : null}
         />

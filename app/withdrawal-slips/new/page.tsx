@@ -95,7 +95,8 @@ export default async function NewWithdrawalSlipPage({
             documentType={source.document_type}
             customerName={source.customer_name}
             lines={source.lines}
-            warehouses={warehouses}
+            warehouseId={source.warehouse_id}
+            warehouses={warehouses.filter((warehouse) => warehouse.id === source.warehouse_id)}
           />
         </div>
       ) : null}

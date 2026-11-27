@@ -128,6 +128,7 @@ export async function saveAtw(formData: FormData): Promise<AtwActionResult> {
   try {
     const id = await createAtwDocument({
       invoice_id: parsed.data.invoice_id,
+      warehouse_id: parsed.data.warehouse_id,
       document_type: parsed.data.document_type,
       remarks: parsed.data.remarks || "",
       lines: parsed.data.lines,
