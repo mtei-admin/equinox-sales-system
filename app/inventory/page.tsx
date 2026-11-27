@@ -4,7 +4,6 @@ import { StatusBadge } from "@/components/status-badge";
 import { Can } from "@/components/can";
 import { listCompanyStock, listWarehouseOnHand, listWarehouses } from "@/lib/data/queries";
 import { listRecentReceiptMovements } from "@/lib/purchasing/queries";
-import { isLegacyWarehouse } from "@/lib/inventory/presentation";
 import { formatDateTime, formatQty } from "@/lib/utils";
 
 function firstParam(value: string | string[] | undefined) {
@@ -50,7 +49,7 @@ export default async function InventoryStockPage({
               <option value="all">All warehouses</option>
               {warehouses.map((row) => (
                 <option key={row.id} value={row.id}>
-                  {isLegacyWarehouse(row.name) ? `${row.name} (legacy, unmapped)` : row.name}
+                  {row.name}
                 </option>
               ))}
             </select>

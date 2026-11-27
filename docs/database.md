@@ -13,7 +13,7 @@ See field map in the previous revision; locked choices:
 - `public.users` (not `profiles`): `username`, `full_name`, `department` (text), `role`, `status` (`active`/`inactive`). PK = `auth.users.id`. No password.
 - `customers`: `name`, `billing_address`, `tin_number`, `status`, `contact_person`, `contact_number`.
 - `items`: `name`, `description`, `brand`, `model`, `serial_no`, `barcode`. Catalog model (D7). No stock column on the item; on-hand is computed from `inventory_movements`.
-- `warehouses`: one seeded **Main** row. `warehouse_id` is snapshotted on SO → Invoice → ATW/DR → WS.
+- `warehouses`: DAVAO (MAIN) is the default warehouse. The original Main row is inactive. `warehouse_id` is stored on inventory movements and on receiving reports and withdrawal slips.
 - `inventory_adjustments` + `inventory_adjustment_items`: `ADJ-YYYY-NNNN`; status `draft` / `posted` / `cancelled`; line `direction` `increase` \| `decrease`.
 - `inventory_movements`: append-only signed quantities. Sources: `adjustment`, `withdrawal_slip`.
 - `sales_orders` + `sales_order_items`: snapshots; UOM and `unit_price` on the line; `amount = quantity * unit_price`; `total_amount = amount`.

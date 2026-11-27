@@ -51,7 +51,7 @@ SO `closed` when remaining qty is 0 on all lines; may return to `open` if an inv
 - Available = on-hand − reserved. Available cannot go negative.
 - Opening an SO is rejected if any item’s required qty exceeds available.
 - Physical stock decreases when a withdrawal slip is **issued**. Cancelling an issued slip restores on-hand and reserved.
-- Adjustments are documents (`draft` / `posted` / `cancelled`). Posting writes movements. One warehouse (Main) in this phase; `warehouse_id` is stored for later locations.
+- Adjustments are documents (`draft` / `posted` / `cancelled`). Posting writes movements. DAVAO (MAIN) is the default warehouse. The original Main warehouse is inactive.
 - A posted receiving report writes a positive `receiving_report` movement for **good** quantity only. Damaged quantity is a discrepancy and is not usable stock. Cancelling a posted receiving report writes a reversing movement and does not delete the original.
 
 ## Purchasing
@@ -76,7 +76,7 @@ Supplier → Purchase Order → Bill of Lading → Receiving Report → stock on
 
 Sales orders commit quantity when opened, including when available is zero or short. Sales orders and bills of lading stay warehouse-independent. A commitment is allocated to a warehouse when an ATW/DR confirms that source warehouse. Several ATW/DR documents may allocate one sales order across warehouses, and any remainder stays unallocated. Cancelling an ATW/DR returns its quantity to unallocated. Company committed is allocated plus unallocated, counted once. Company available = company on hand − company committed and may be negative. A selected warehouse shows its on hand, its ATW/DR allocation, and available = that on hand − that allocation. Incoming stays company-wide. A receiving report posts good quantity only to its one warehouse. Damaged quantity is quarantined. Incoming stock is outstanding quantity on posted, in-transit, arrived, and partially received bills of lading, after physical receipts (including damaged) and after accepted or resolved shortages. A withdrawal slip uses the ATW/DR warehouse. Issuing it checks that warehouse's allocation and on-hand stock, then the same issued quantity reduces both the sales-order commitment and the warehouse allocation.
 
-There is no per-user warehouse assignment. Stock transfers are not part of this release. Legacy balances on Main are not moved to Davao, Cagayan de Oro, Cebu, or Manila.
+There is no per-user warehouse assignment. Stock transfers between branches are not part of this release. Opening stock that was on Main is on DAVAO (MAIN). The old Main warehouse is inactive. Cagayan de Oro, Cebu, and Manila are unchanged.
 
 ## Out of scope (v1)
 

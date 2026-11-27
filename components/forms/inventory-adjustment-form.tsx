@@ -86,8 +86,8 @@ export function InventoryAdjustmentForm({
         </FormField>
         <p className="text-sm text-eq-slate">
           Increase for receipts and opening stock. Decrease for count shortages or write-offs. Posting writes the
-          movement ledger. A decrease cannot take available below zero. Choose the warehouse explicitly. Main is the
-          legacy location and is not a default branch.
+          movement ledger. A decrease cannot take available below zero. Choose the warehouse explicitly. DAVAO (MAIN)
+          is the default warehouse.
         </p>
         <div>
           <div className="mb-2 flex items-center justify-between">

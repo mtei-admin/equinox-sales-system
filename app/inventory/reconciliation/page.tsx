@@ -27,11 +27,11 @@ export default async function ReconciliationPage() {
     <>
       <PageHeader
         title="Opening stock reconciliation"
-        description="Legacy Main balances stay where they are. Enroll a manufacturer serial or internal unit barcode during the count. This does not create stock or assign a warehouse."
+        description="Opening stock is on DAVAO (MAIN). Enroll a manufacturer serial or internal unit barcode during the count. Enrollment does not create stock."
         actions={<SecondaryLink href="/inventory">Back to stock</SecondaryLink>}
       />
       <Card className="mb-4">
-        <h2 className="border-b border-eq-line px-4 py-3 text-sm font-semibold">Unmapped Main balances</h2>
+        <h2 className="border-b border-eq-line px-4 py-3 text-sm font-semibold">Quantity still on Main</h2>
         <DataTable headers={["Item", "On hand on Main"]}>
           {unmapped.map((row) => {
             const item = company.find((entry) => entry.item_id === row.item_id);

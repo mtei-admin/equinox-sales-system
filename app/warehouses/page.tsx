@@ -1,7 +1,6 @@
 import { Card, PageHeader, PrimaryLink } from "@/components/page-header";
 import { DataTable, EmptyState } from "@/components/data-table";
 import { listWarehouses } from "@/lib/data/queries";
-import { isLegacyWarehouse } from "@/lib/inventory/presentation";
 
 export default async function WarehousesPage() {
   const rows = await listWarehouses();
@@ -10,7 +9,7 @@ export default async function WarehousesPage() {
     <>
       <PageHeader
         title="Warehouses"
-        description="Branch warehouses. Main remains the legacy location for stock that has not been reconciled."
+        description="DAVAO (MAIN) holds the stock that was on Main. Cagayan de Oro, Cebu, and Manila are the other branches."
       />
       <Card>
         <DataTable headers={["Name", "Notes"]}>
@@ -18,7 +17,7 @@ export default async function WarehousesPage() {
             <tr key={row.id}>
               <td className="px-4 py-3">{row.name}</td>
               <td className="px-4 py-3 text-sm text-eq-slate">
-                {isLegacyWarehouse(row.name) ? "Legacy balance. Do not treat this as a branch assignment." : "Branch warehouse"}
+                {row.name === "DAVAO (MAIN)" ? "Default warehouse. Former Main stock is here." : "Branch warehouse"}
               </td>
             </tr>
           ))}
