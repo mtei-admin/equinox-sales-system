@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { inventoryAdjustmentSchema, postInventoryAdjustmentSchema } from "@/lib/validation/schemas";
 
 const lineId = "11111111-1111-4111-8111-111111111111";
+const warehouseId = "22222222-2222-4222-8222-222222222222";
 
 describe("inventory adjustment schema", () => {
   it("accepts increase and decrease lines", () => {
     const parsed = inventoryAdjustmentSchema.safeParse({
+      warehouse_id: warehouseId,
       remarks: "Opening",
       lines: [
         { item_id: lineId, quantity: "4", direction: "increase" },
@@ -21,6 +23,7 @@ describe("inventory adjustment schema", () => {
   it("rejects a missing direction or empty lines", () => {
     expect(
       inventoryAdjustmentSchema.safeParse({
+        warehouse_id: warehouseId,
         lines: [{ item_id: lineId, quantity: 1 }],
       }).success,
     ).toBe(false);

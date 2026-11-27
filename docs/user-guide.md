@@ -10,10 +10,10 @@ Open the app and sign in with the email and password provided by an administrato
 
 | Role | What you do in Equinox |
 | --- | --- |
-| Admin | Users, master data, purchasing, inventory adjustments, and all documents. Full dashboard. |
-| Sales | Customers, items, sales orders, invoices, ATW/DR. Can view suppliers, purchasing documents, and stock. Dashboard shows those documents and pending actions. |
-| Warehouse | Withdrawal slips, inventory adjustments, bills of lading, and receiving reports. Can view purchase orders. Dashboard shows ATW/DR pending withdrawal and slips. |
-| Accounting | Read operational documents, inventory, and master data. Dashboard is a read-only transaction overview. |
+| Admin | Users, master data (including warehouses), purchasing, inventory adjustments, and all documents. |
+| Sales | Purchase orders and bills of lading (view), sales orders, invoices, ATW/DR, and stock on hand. |
+| Warehouse | ATW/DR (view), withdrawal slips, receiving reports, variances, and stock on hand. |
+| Accounting | Operational documents, variances, stock on hand, and reports. No master data and no users. |
 
 ## Typical day
 

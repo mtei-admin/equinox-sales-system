@@ -2,6 +2,7 @@ import { Card, PageHeader } from "@/components/page-header";
 import { AtwLookupSearch } from "@/components/atw-lookup-search";
 import { WithdrawalSlipForm } from "@/components/forms/withdrawal-slip-form";
 import { searchReleasedAtw } from "@/lib/data/queries";
+import { listWarehouses } from "@/lib/data/queries";
 import { loadWsSource } from "@/lib/withdrawal-slips/actions";
 import { requirePermission } from "@/lib/auth/guards";
 import { formatQty } from "@/lib/utils";
@@ -17,6 +18,7 @@ export default async function NewWithdrawalSlipPage({
   const requested = Array.isArray(params.atw_id) ? params.atw_id[0] : params.atw_id;
   const matches = q.trim() ? await searchReleasedAtw(q) : [];
   const source = requested ? await loadWsSource(requested) : null;
+  const warehouses = await listWarehouses();
 
   return (
     <>
@@ -93,6 +95,7 @@ export default async function NewWithdrawalSlipPage({
             documentType={source.document_type}
             customerName={source.customer_name}
             lines={source.lines}
+            warehouses={warehouses}
           />
         </div>
       ) : null}

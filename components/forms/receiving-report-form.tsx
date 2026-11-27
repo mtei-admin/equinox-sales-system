@@ -16,10 +16,12 @@ export function ReceivingReportForm({
   billOfLadingId,
   lines,
   users,
+  warehouses,
 }: {
   billOfLadingId: string;
   lines: BillOfLadingItemRow[];
   users: Pick<UserRow, "id" | "full_name" | "username">[];
+  warehouses: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const openLines = lines
@@ -34,6 +36,9 @@ export function ReceivingReportForm({
   const [gross, setGross] = useState("");
   const [tare, setTare] = useState("");
   const [ticket, setTicket] = useState("");
+  const [containerNumber, setContainerNumber] = useState("");
+  const [sealNumber, setSealNumber] = useState("");
+  const [warehouseId, setWarehouseId] = useState("");
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() =>
     Object.fromEntries(openLines.map((row) => [row.line.id, { good: row.expected, damaged: 0, remarks: "", acceptExcess: false, recordShort: false }])),
   );
@@ -86,6 +91,9 @@ export function ReceivingReportForm({
       gross_weight: gross,
       tare_weight: tare,
       weighbridge_ticket: ticket,
+      container_number: containerNumber,
+      seal_number: sealNumber,
+      warehouse_id: warehouseId,
       lines: openLines.map((row) => ({
         bol_item_id: row.line.id,
         good_qty: drafts[row.line.id]?.good ?? 0,
@@ -122,6 +130,14 @@ export function ReceivingReportForm({
   return (
     <Card className="p-5">
       <div className="grid gap-4 md:grid-cols-2">
+        <FormField label="Warehouse">
+          <select className={inputClassName} value={warehouseId} onChange={(event) => setWarehouseId(event.target.value)} required>
+            <option value="">Select warehouse…</option>
+            {warehouses.map((warehouse) => (
+              <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+            ))}
+          </select>
+        </FormField>
         <FormField label="Receiving date">
           <input className={inputClassName} type="date" value={date} onChange={(event) => setDate(event.target.value)} />
         </FormField>
@@ -146,6 +162,12 @@ export function ReceivingReportForm({
               <option key={user.id} value={user.id}>{user.full_name}</option>
             ))}
           </select>
+        </FormField>
+        <FormField label="Container number">
+          <input className={inputClassName} value={containerNumber} onChange={(event) => setContainerNumber(event.target.value)} />
+        </FormField>
+        <FormField label="Seal number">
+          <input className={inputClassName} value={sealNumber} onChange={(event) => setSealNumber(event.target.value)} />
         </FormField>
         <FormField label="Weighbridge ticket">
           <input className={inputClassName} value={ticket} onChange={(event) => setTicket(event.target.value)} />

@@ -29,22 +29,43 @@ export function BillOfLadingForm({
   const [carrier, setCarrier] = useState("");
   const [vessel, setVessel] = useState("");
   const [voyage, setVoyage] = useState("");
-  const [container, setContainer] = useState("");
-  const [seal, setSeal] = useState("");
+  const [containerCount, setContainerCount] = useState("");
   const [plate, setPlate] = useState("");
   const [origin, setOrigin] = useState("");
   const [dest, setDest] = useState(destination ?? "");
   const [reference, setReference] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [qty, setQty] = useState<Record<string, number>>(() =>
-    Object.fromEntries(openLines.map((row) => [row.line.id, row.remaining])),
+  const [qty, setQty] = useState<Record<string, string>>(() =>
+    Object.fromEntries(openLines.map((row) => [row.line.id, String(row.remaining)])),
   );
+  const [omitted, setOmitted] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit() {
     setPending(true);
     setError(null);
+    const selected = openLines.filter((row) => !omitted.includes(row.line.id));
+    if (selected.length === 0) {
+      setError("Bill of lading needs at least one item");
+      setPending(false);
+      return;
+    }
+    const blank = selected.find((row) => (qty[row.line.id] ?? "").trim() === "");
+    if (blank) {
+      setError(`Shipped quantity is required for ${blank.line.item_name}`);
+      setPending(false);
+      return;
+    }
+    const invalid = selected.find((row) => {
+      const value = Number(qty[row.line.id]);
+      return !Number.isFinite(value) || value <= 0;
+    });
+    if (invalid) {
+      setError(`Shipped quantity must be greater than 0 for ${invalid.line.item_name}`);
+      setPending(false);
+      return;
+    }
     const payload = {
       purchase_order_id: purchaseOrderId,
       shipment_mode: mode,
@@ -53,16 +74,15 @@ export function BillOfLadingForm({
       carrier,
       vessel_name: vessel,
       voyage_number: voyage,
-      container_number: container,
-      seal_number: seal,
+      container_count: containerCount,
       vehicle_plate_number: plate,
       origin,
       destination: dest,
       reference_number: reference,
       remarks,
-      lines: openLines.map((row) => ({
+      lines: selected.map((row) => ({
         purchase_order_item_id: row.line.id,
-        shipped_qty: Number(qty[row.line.id] ?? 0),
+        shipped_qty: Number(qty[row.line.id]),
       })),
     };
     const parsed = billOfLadingSchema.safeParse(payload);
@@ -71,12 +91,7 @@ export function BillOfLadingForm({
       setPending(false);
       return;
     }
-    if (!parsed.data.lines.some((line) => line.shipped_qty > 0)) {
-      setError("Enter a shipped quantity for at least one item");
-      setPending(false);
-      return;
-    }
-    const over = openLines.find((row) => Number(qty[row.line.id] ?? 0) > row.remaining);
+    const over = selected.find((row) => Number(qty[row.line.id]) > row.remaining);
     if (over) {
       setError("Requested shipment quantity exceeds the remaining PO quantity.");
       setPending(false);
@@ -124,11 +139,8 @@ export function BillOfLadingForm({
             <FormField label="Voyage">
               <input className={inputClassName} value={voyage} onChange={(event) => setVoyage(event.target.value)} />
             </FormField>
-            <FormField label="Container">
-              <input className={inputClassName} value={container} onChange={(event) => setContainer(event.target.value)} />
-            </FormField>
-            <FormField label="Seal">
-              <input className={inputClassName} value={seal} onChange={(event) => setSeal(event.target.value)} />
+            <FormField label="Number of containers">
+              <input className={inputClassName} type="number" min="1" step="1" value={containerCount} onChange={(event) => setContainerCount(event.target.value)} />
             </FormField>
           </>
         ) : (
@@ -163,7 +175,7 @@ export function BillOfLadingForm({
             </tr>
           </thead>
           <tbody>
-            {openLines.map(({ line, remaining }) => (
+            {openLines.filter((row) => !omitted.includes(row.line.id)).map(({ line, remaining }) => (
               <tr key={line.id} className="border-t border-eq-line">
                 <td className="py-2 pr-3">
                   <p>{line.item_name}</p>
@@ -173,15 +185,25 @@ export function BillOfLadingForm({
                 <td className="py-2 pr-3">{formatQty(line.shipped_qty)}</td>
                 <td className="py-2 pr-3">{formatQty(remaining)}</td>
                 <td className="py-2">
-                  <input
-                    className={inputClassName}
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    max={remaining}
-                    value={qty[line.id] ?? 0}
-                    onChange={(event) => setQty((current) => ({ ...current, [line.id]: Number(event.target.value) }))}
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      className={inputClassName}
+                      type="number"
+                      required
+                      min="0.01"
+                      step="0.01"
+                      max={remaining}
+                      value={qty[line.id] ?? ""}
+                      onChange={(event) => setQty((current) => ({ ...current, [line.id]: event.target.value }))}
+                    />
+                    <button
+                      type="button"
+                      className="text-sm text-eq-slate underline"
+                      onClick={() => setOmitted((current) => [...current, line.id])}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

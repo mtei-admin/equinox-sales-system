@@ -150,6 +150,7 @@ export async function saveWithdrawalSlip(formData: FormData): Promise<WsActionRe
     );
     const id = await createWithdrawalSlip({
       atw_id: parsed.data.atw_id,
+      warehouse_id: parsed.data.warehouse_id,
       remarks: parsed.data.remarks || "",
       lines: parsed.data.lines ?? atw.atw_document_items.map((line) => ({
         atw_item_id: line.id,

@@ -24,6 +24,10 @@ export type Permission =
   | "withdrawal-slips.write"
   | "inventory.read"
   | "inventory.write"
+  | "warehouses.read"
+  | "warehouses.write"
+  | "variances.read"
+  | "variances.write"
   | "reports.read";
 
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
@@ -51,52 +55,39 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     "withdrawal-slips.write",
     "inventory.read",
     "inventory.write",
+    "warehouses.read",
+    "warehouses.write",
+    "variances.read",
+    "variances.write",
     "reports.read",
   ],
   sales: [
-    "customers.read",
-    "customers.write",
-    "suppliers.read",
-    "items.read",
-    "items.write",
     "purchase-orders.read",
     "bills-of-lading.read",
-    "receiving-reports.read",
     "sales-orders.read",
     "sales-orders.write",
     "invoices.read",
     "invoices.write",
     "atw-dr.read",
     "atw-dr.write",
-    "withdrawal-slips.read",
     "inventory.read",
-    "reports.read",
   ],
   warehouse: [
-    "customers.read",
-    "suppliers.read",
-    "items.read",
-    "purchase-orders.read",
-    "bills-of-lading.read",
-    "bills-of-lading.write",
-    "receiving-reports.read",
-    "receiving-reports.write",
-    "sales-orders.read",
-    "invoices.read",
     "atw-dr.read",
     "withdrawal-slips.read",
     "withdrawal-slips.write",
+    "receiving-reports.read",
+    "receiving-reports.write",
+    "variances.read",
+    "variances.write",
     "inventory.read",
     "inventory.write",
-    "reports.read",
   ],
   accounting: [
-    "customers.read",
-    "suppliers.read",
-    "items.read",
     "purchase-orders.read",
     "bills-of-lading.read",
     "receiving-reports.read",
+    "variances.read",
     "sales-orders.read",
     "invoices.read",
     "atw-dr.read",
@@ -130,6 +121,10 @@ export const ALL_PERMISSIONS: Permission[] = [
   "withdrawal-slips.write",
   "inventory.read",
   "inventory.write",
+  "warehouses.read",
+  "warehouses.write",
+  "variances.read",
+  "variances.write",
   "reports.read",
 ];
 
@@ -146,5 +141,7 @@ export function canAccessModule(role: UserRole, module: ModuleKey) {
   if (module === "users") return can(role, "users.manage");
   if (module === "reports") return can(role, "reports.read");
   if (module === "inventory") return can(role, "inventory.read");
+  if (module === "warehouses") return can(role, "warehouses.read");
+  if (module === "variances") return can(role, "variances.read");
   return can(role, `${module}.read` as Permission);
 }

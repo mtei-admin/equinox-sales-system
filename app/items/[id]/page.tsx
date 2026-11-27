@@ -50,12 +50,20 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
             <dd className="mt-1 text-sm">{stock ? formatQty(stock.on_hand) : "—"}</dd>
           </div>
           <div>
+            <dt className="text-xs uppercase text-eq-slate">Incoming</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.incoming) : "—"}</dd>
+          </div>
+          <div>
             <dt className="text-xs uppercase text-eq-slate">Commited</dt>
             <dd className="mt-1 text-sm">{stock ? formatQty(stock.reserved) : "—"}</dd>
           </div>
           <div>
             <dt className="text-xs uppercase text-eq-slate">Available</dt>
             <dd className="mt-1 text-sm">{stock ? formatQty(stock.available) : "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs uppercase text-eq-slate">Quarantine</dt>
+            <dd className="mt-1 text-sm">{stock ? formatQty(stock.quarantine) : "—"}</dd>
           </div>
         </dl>
         <AuditFields

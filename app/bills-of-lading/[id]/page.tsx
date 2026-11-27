@@ -64,7 +64,7 @@ export default async function BillOfLadingPage({ params }: { params: Promise<{ i
           <div><dt className="text-xs uppercase text-eq-slate">Expected arrival</dt><dd className="mt-1 text-sm">{formatDate(bill.expected_arrival_date)}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Carrier</dt><dd className="mt-1 text-sm">{bill.carrier ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Vessel / voyage</dt><dd className="mt-1 text-sm">{[bill.vessel_name, bill.voyage_number].filter(Boolean).join(" · ") || "—"}</dd></div>
-          <div><dt className="text-xs uppercase text-eq-slate">Container / seal</dt><dd className="mt-1 text-sm">{[bill.container_number, bill.seal_number].filter(Boolean).join(" · ") || "—"}</dd></div>
+          <div><dt className="text-xs uppercase text-eq-slate">Number of containers</dt><dd className="mt-1 text-sm">{bill.container_count ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Vehicle plate</dt><dd className="mt-1 text-sm">{bill.vehicle_plate_number ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Origin</dt><dd className="mt-1 text-sm">{bill.origin ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Destination</dt><dd className="mt-1 text-sm">{bill.destination ?? "—"}</dd></div>

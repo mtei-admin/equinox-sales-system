@@ -51,6 +51,8 @@ export default async function ReceivingReportPage({ params }: { params: Promise<
           <div><dt className="text-xs uppercase text-eq-slate">PO number</dt><dd className="mt-1 text-sm">{po ? <a className="text-eq-navy underline" href={`/purchase-orders/${po.id}`}>{po.po_number}</a> : "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">BOL number</dt><dd className="mt-1 text-sm">{bol ? <a className="text-eq-navy underline" href={`/bills-of-lading/${bol.id}`}>{bol.bol_number}</a> : "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Receiving date</dt><dd className="mt-1 text-sm">{formatDate(report.receiving_date)}</dd></div>
+          <div><dt className="text-xs uppercase text-eq-slate">Container number</dt><dd className="mt-1 text-sm">{report.container_number ?? "—"}</dd></div>
+          <div><dt className="text-xs uppercase text-eq-slate">Seal number</dt><dd className="mt-1 text-sm">{report.seal_number ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Delivery receipt</dt><dd className="mt-1 text-sm">{report.delivery_receipt_number ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Supplier invoice</dt><dd className="mt-1 text-sm">{report.supplier_invoice_number ?? "—"}</dd></div>
           <div><dt className="text-xs uppercase text-eq-slate">Received by</dt><dd className="mt-1 text-sm">{report.received_by_name ?? "—"}</dd></div>

@@ -15,18 +15,23 @@ UI hide + Server Action `requireRole` + RLS SELECT + RPC role check (definer byp
 | Action | admin | sales | warehouse | accounting |
 | --- | --- | --- | --- | --- |
 | Users manage | yes | no | no | no |
-| Customers / Items read | yes | yes | yes | yes |
-| Customers / Items write | yes | yes | no | no |
-| SO / Invoice / ATW read | yes | yes | yes | yes |
+| Customers / Items read | yes | no | no | no |
+| Customers / Items write | yes | no | no | no |
+| SO / Invoice / ATW read | yes | yes | ATW only | yes |
 | SO / Invoice / ATW write | yes | yes | no | no |
-| WS read | yes | yes | yes | yes |
+| WS read | yes | no | yes | yes |
 | WS write | yes | no | yes | no |
 | Inventory read | yes | yes | yes | yes |
 | Inventory write | yes | no | yes | no |
-| Suppliers / purchase orders read | yes | yes | yes | yes |
+| Suppliers / purchase orders read | yes | PO only | no | yes |
 | Suppliers / purchase orders write | yes | no | no | no |
-| BOL / receiving reports read | yes | yes | yes | yes |
-| BOL / receiving reports write | yes | no | yes | no |
+| BOL read | yes | yes | no | yes |
+| BOL write | yes | no | no | no |
+| Receiving reports read | yes | no | yes | yes |
+| Receiving reports write | yes | no | yes | no |
+| Variances read | yes | no | yes | yes |
+| Variances write | yes | no | yes | no |
+| Reports | yes | no | no | yes |
 
 No `viewer` role. Print pages for invoices, ATW/DR, and withdrawal slips use the same read permission as the document. They do not use the service role.
 

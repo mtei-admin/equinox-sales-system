@@ -373,6 +373,7 @@ export type BillOfLadingRow = {
   carrier: string | null;
   vessel_name: string | null;
   voyage_number: string | null;
+  container_count: number | null;
   container_number: string | null;
   seal_number: string | null;
   vehicle_plate_number: string | null;
@@ -424,6 +425,8 @@ export type ReceivingReportRow = {
   tare_weight: number | null;
   net_weight: number | null;
   weighbridge_ticket: string | null;
+  container_number: string | null;
+  seal_number: string | null;
   status: RrStatus;
   posted_by: string | null;
   posted_at: string | null;

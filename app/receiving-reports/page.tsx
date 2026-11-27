@@ -1,9 +1,10 @@
 import { Card, PageHeader } from "@/components/page-header";
 import { DataTable, EmptyState } from "@/components/data-table";
 import { StatusBadge } from "@/components/status-badge";
+import { Can } from "@/components/can";
 import { PurchasingListFilters } from "@/components/purchasing-list-filters";
 import { parsePurchasingFilters } from "@/lib/purchasing/filters";
-import { listReceivingReports } from "@/lib/purchasing/queries";
+import { listBillsOfLading, listReceivingReports } from "@/lib/purchasing/queries";
 import { formatDate } from "@/lib/utils";
 
 export default async function ReceivingReportsPage({
@@ -12,8 +13,12 @@ export default async function ReceivingReportsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const filters = parsePurchasingFilters(await searchParams);
-  const rows = await listReceivingReports(filters.q, filters.from, filters.to);
+  const [rows, bills] = await Promise.all([
+    listReceivingReports(filters.q, filters.from, filters.to),
+    listBillsOfLading(),
+  ]);
   const filtered = Boolean(filters.q || filters.from || filters.to);
+  const receivable = bills.filter((row) => ["posted", "in_transit", "arrived", "partially_received"].includes(row.status));
 
   return (
     <>
@@ -21,6 +26,23 @@ export default async function ReceivingReportsPage({
         title="Receiving reports"
         description="Posting a receiving report adds good quantity to stock on hand. Draft reports do not move inventory."
       />
+      <Can permission="receiving-reports.write">
+        <Card className="mb-4">
+          <h2 className="border-b border-eq-line px-4 py-3 text-sm font-semibold">Receive a bill of lading</h2>
+          <DataTable headers={["BOL number", "Supplier", "Status"]}>
+            {receivable.map((row) => (
+              <tr key={row.id}>
+                <td className="px-4 py-3 font-mono text-xs">
+                  <a className="text-eq-navy underline" href={`/receiving-reports/receive/${row.id}`}>{row.bol_number}</a>
+                </td>
+                <td className="px-4 py-3">{row.supplier_name}</td>
+                <td className="px-4 py-3"><StatusBadge status={row.status} /></td>
+              </tr>
+            ))}
+          </DataTable>
+          {receivable.length === 0 ? <p className="px-4 py-4 text-sm text-eq-slate">No posted bill of lading is waiting for a receipt.</p> : null}
+        </Card>
+      </Can>
       <Card>
         <PurchasingListFilters action="/receiving-reports" q={filters.q} from={filters.from} to={filters.to} placeholder="RR, BOL, PO, or supplier" />
         <DataTable headers={["RR number", "BOL number", "PO number", "Supplier", "Receiving date", "Status"]}>

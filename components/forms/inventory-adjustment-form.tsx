@@ -7,7 +7,7 @@ import { FormField, inputClassName } from "@/components/form-field";
 import { saveInventoryAdjustment } from "@/lib/inventory/actions";
 import { inventoryAdjustmentSchema } from "@/lib/validation/schemas";
 import { formatQty } from "@/lib/utils";
-import type { InventoryAdjustmentItemRow, InventoryAdjustmentRow, InventoryStockRow, ItemRow } from "@/types/database";
+import type { InventoryAdjustmentItemRow, InventoryAdjustmentRow, ItemRow } from "@/types/database";
 
 type LineDraft = { item_id: string; quantity: number; direction: "increase" | "decrease" };
 
@@ -16,10 +16,12 @@ const emptyLine = (): LineDraft => ({ item_id: "", quantity: 1, direction: "incr
 export function InventoryAdjustmentForm({
   items,
   stock,
+  warehouses = [],
   adjustment,
 }: {
   items: ItemRow[];
-  stock: InventoryStockRow[];
+  stock: { item_id: string; available: number }[];
+  warehouses?: { id: string; name: string }[];
   adjustment?: InventoryAdjustmentRow & { inventory_adjustment_items: InventoryAdjustmentItemRow[] };
 }) {
   const router = useRouter();
@@ -49,6 +51,7 @@ export function InventoryAdjustmentForm({
     setError(null);
     const payload = {
       id: adjustment?.id,
+      warehouse_id: String(formData.get("warehouse_id") || adjustment?.warehouse_id || ""),
       remarks: String(formData.get("remarks") || ""),
       lines: lines.filter((line) => line.item_id),
     };
@@ -73,9 +76,18 @@ export function InventoryAdjustmentForm({
   return (
     <Card className="p-5">
       <form action={onSubmit} className="space-y-5">
+        <FormField label="Warehouse">
+          <select className={inputClassName} name="warehouse_id" defaultValue={adjustment?.warehouse_id ?? ""} required disabled={editing}>
+            <option value="">Select warehouse…</option>
+            {warehouses.map((warehouse) => (
+              <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+            ))}
+          </select>
+        </FormField>
         <p className="text-sm text-eq-slate">
           Increase for receipts and opening stock. Decrease for count shortages or write-offs. Posting writes the
-          movement ledger. Available cannot go negative.
+          movement ledger. A decrease cannot take available below zero. Choose the warehouse explicitly. Main is the
+          legacy location and is not a default branch.
         </p>
         <div>
           <div className="mb-2 flex items-center justify-between">

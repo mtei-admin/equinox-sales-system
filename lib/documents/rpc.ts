@@ -78,3 +78,7 @@ export function postInventoryAdjustment(id: string, reason: string) {
 export function cancelInventoryAdjustment(id: string, reason: string) {
   return callRpc<void>("cancel_inventory_adjustment", { p_id: id, p_reason: reason });
 }
+
+export function enrollInventoryUnit(payload: Record<string, unknown>) {
+  return callRpc<string>("enroll_inventory_unit", { payload });
+}

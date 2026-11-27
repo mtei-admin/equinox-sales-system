@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader, SecondaryLink } from "@/components/page-header";
 import { SalesOrderForm } from "@/components/forms/sales-order-form";
-import { getSalesOrder, listActiveUsers, listCustomers, listInventoryStock, listItems } from "@/lib/data/queries";
+import { getSalesOrder, listActiveUsers, listCompanyStock, listCustomers, listItems } from "@/lib/data/queries";
 import { requirePermission } from "@/lib/auth/guards";
 
 export default async function EditSalesOrderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,7 +15,7 @@ export default async function EditSalesOrderPage({ params }: { params: Promise<{
     listCustomers({ q: "", status: "active" }),
     listItems({ q: "", status: "active" }),
     listActiveUsers(),
-    listInventoryStock(),
+    listCompanyStock(),
   ]);
   const customerOptions = customers.some((row) => row.id === order.customer_id)
     ? customers

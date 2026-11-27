@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import type { ModuleKey } from "@/types";
-import { canAccessModule } from "@/lib/permissions/policies";
+import { can, canAccessModule, type Permission } from "@/lib/permissions/policies";
 import type { UserRole } from "@/types/database";
 import {
   ClipboardList,
@@ -27,7 +27,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type NavItem = { href: string; label: string; module: ModuleKey; icon: typeof LayoutDashboard };
+type NavItem = {
+  href: string;
+  label: string;
+  module: ModuleKey;
+  icon: typeof LayoutDashboard;
+  permission?: Permission;
+};
 type NavGroup = { id: string; label: string | null; items: NavItem[] };
 
 const NAV: NavGroup[] = [
@@ -43,6 +49,7 @@ const NAV: NavGroup[] = [
       { href: "/customers", label: "Customers", module: "customers", icon: Users },
       { href: "/suppliers", label: "Suppliers", module: "suppliers", icon: Building2 },
       { href: "/items", label: "Items", module: "items", icon: Package },
+      { href: "/warehouses", label: "Warehouses", module: "warehouses", icon: Warehouse },
     ],
   },
   {
@@ -52,6 +59,7 @@ const NAV: NavGroup[] = [
       { href: "/purchase-orders", label: "Purchase orders", module: "purchase-orders", icon: ShoppingCart },
       { href: "/bills-of-lading", label: "Bills of lading", module: "bills-of-lading", icon: Ship },
       { href: "/receiving-reports", label: "Receiving reports", module: "receiving-reports", icon: PackageCheck },
+      { href: "/variances", label: "Variances", module: "variances", icon: ClipboardPen },
     ],
   },
   {
@@ -69,7 +77,7 @@ const NAV: NavGroup[] = [
     label: "Inventory",
     items: [
       { href: "/inventory", label: "Stock on hand", module: "inventory", icon: Boxes },
-      { href: "/inventory/adjustments", label: "Adjustments", module: "inventory", icon: ClipboardPen },
+      { href: "/inventory/adjustments", label: "Adjustments", module: "inventory", icon: ClipboardPen, permission: "inventory.write" },
     ],
   },
   {
@@ -140,7 +148,9 @@ function Sidebar({
   const pathname = usePathname();
   const groups = NAV.map((group) => ({
     ...group,
-    items: group.items.filter((item) => canAccessModule(role, item.module)),
+    items: group.items.filter((item) =>
+      item.permission ? can(role, item.permission) : canAccessModule(role, item.module),
+    ),
   })).filter((group) => group.items.length > 0);
   const hrefs = groups.flatMap((group) => group.items.map((item) => item.href));
 

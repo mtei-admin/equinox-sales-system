@@ -17,6 +17,8 @@ export function WithdrawalSlipForm({
   lines,
   slipId,
   remarks = "",
+  warehouses = [],
+  warehouseId = "",
 }: {
   atwId: string;
   atwNumber: string;
@@ -25,6 +27,8 @@ export function WithdrawalSlipForm({
   lines: WsSourceLine[];
   slipId?: string;
   remarks?: string;
+  warehouses?: { id: string; name: string }[];
+  warehouseId?: string;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +52,7 @@ export function WithdrawalSlipForm({
     const payload = {
       id: slipId,
       atw_id: atwId,
+      warehouse_id: String(formData.get("warehouse_id") || warehouseId || ""),
       remarks: String(formData.get("remarks") || ""),
       lines: lines.map((line) => ({
         atw_item_id: line.atw_item_id,
@@ -78,6 +83,14 @@ export function WithdrawalSlipForm({
         <p className="text-sm text-eq-slate">
           {typeLabel} <span className="font-mono text-eq-ink">{atwNumber}</span> · {customerName}
         </p>
+        <FormField label="Warehouse">
+          <select className={inputClassName} name="warehouse_id" defaultValue={warehouseId} required disabled={editing}>
+            <option value="">Select warehouse…</option>
+            {warehouses.map((warehouse) => (
+              <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+            ))}
+          </select>
+        </FormField>
         <p className="text-xs text-eq-slate">
           Every ATW/DR line is copied at the same quantity. Quantities cannot be changed. One non-cancelled slip is
           allowed per ATW/DR.

@@ -274,3 +274,44 @@ export async function getReceivingReport(id: string) {
     events: (events ?? []) as PurchasingEventRow[],
   };
 }
+
+export type VarianceRow = {
+  id: string;
+  discrepancy_type: string;
+  quantity: number;
+  status: string;
+  remarks: string | null;
+  item_name: string;
+  shipped_qty: number;
+  actual_received_qty: number;
+  good_qty: number;
+  damaged_qty: number;
+  short_qty: number;
+  receiving_report_id: string;
+  rr_number: string;
+  bol_number: string;
+  bill_of_lading_id: string;
+};
+
+export async function listVariances(): Promise<VarianceRow[]> {
+  const supabase = await client();
+  const { data, error } = await supabase.from("purchasing_variances").select("*").order("rr_number");
+  if (error) return [];
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    discrepancy_type: String(row.discrepancy_type),
+    quantity: Number(row.quantity),
+    status: String(row.status),
+    remarks: (row.remarks as string | null) ?? null,
+    item_name: String(row.item_name),
+    shipped_qty: Number(row.shipped_qty),
+    actual_received_qty: Number(row.actual_received_qty),
+    good_qty: Number(row.good_qty),
+    damaged_qty: Number(row.damaged_qty),
+    short_qty: Number(row.short_qty),
+    receiving_report_id: String(row.receiving_report_id),
+    rr_number: String(row.rr_number),
+    bol_number: String(row.bol_number),
+    bill_of_lading_id: String(row.bill_of_lading_id),
+  }));
+}

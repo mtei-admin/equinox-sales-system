@@ -8,7 +8,7 @@ import { headerTotals, soLineTotals } from "@/lib/business/totals";
 import { saveSalesOrder } from "@/lib/sales-orders/actions";
 import { salesOrderSchema } from "@/lib/validation/schemas";
 import { formatMoney, formatQty, todayIsoDate } from "@/lib/utils";
-import type { CustomerRow, InventoryStockRow, ItemRow, SalesOrderItemRow, SalesOrderRow, UserRow } from "@/types/database";
+import type { CustomerRow, ItemRow, SalesOrderItemRow, SalesOrderRow, UserRow } from "@/types/database";
 
 type LineDraft = {
   item_id: string;
@@ -68,7 +68,7 @@ export function SalesOrderForm({
 }: {
   customers: CustomerRow[];
   items: ItemRow[];
-  stock?: InventoryStockRow[];
+  stock?: { item_id: string; available: number }[];
   employees: Pick<UserRow, "id" | "full_name" | "username">[];
   currentUserId: string;
   order?: SalesOrderRow & { sales_order_items: SalesOrderItemRow[] };
@@ -210,6 +210,7 @@ export function SalesOrderForm({
                 {lines.map((line, index) => {
                   const amount = line.item_id && line.quantity > 0 ? soLineTotals(line.quantity, line.unit_price).total_amount : 0;
                   const available = stock.find((row) => row.item_id === line.item_id)?.available;
+                  const shortage = available != null && line.quantity > available ? line.quantity - available : 0;
                   return (
                     <tr key={index} className="align-top">
                       <td className="py-1 pr-2 min-w-[14rem]">
@@ -224,6 +225,7 @@ export function SalesOrderForm({
                       </td>
                       <td className="py-2 pr-2 whitespace-nowrap text-xs text-eq-slate">
                         {available == null ? "—" : formatQty(available)}
+                        {shortage > 0 ? <p className="text-rose-700">Short {formatQty(shortage)}</p> : null}
                       </td>
                       <td className="py-1 pr-2 w-28">
                         <input
@@ -263,8 +265,9 @@ export function SalesOrderForm({
             </table>
           </div>
           <p className="mt-3 text-sm text-eq-slate">
-            Unit price and UOM are entered on the line. Amount = quantity × unit price. Opening the order reserves
-            quantity and is rejected if available is not enough.
+            Unit price and UOM are entered on the line. Amount = quantity × unit price. Opening the order commits
+            the quantity even when available is short. Available can go negative. Physical withdrawal is still limited
+            to on-hand stock at the withdrawal slip warehouse.
           </p>
         </div>
 

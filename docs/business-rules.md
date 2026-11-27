@@ -67,13 +67,17 @@ Supplier → Purchase Order → Bill of Lading → Receiving Report → stock on
 
 ## Roles
 
-| Role | SO / Invoice / ATW | WS | Inventory adj. | Customers / Items | Suppliers / PO | BOL / Receiving | Users |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| admin | write | write | write | write | write | write | manage |
-| sales | write | read | read | write | read | read | no |
-| warehouse | read | write | write | read | read | write | no |
-| accounting | read | read | read | read | read | read | no |
+| Role | SO / Invoice / ATW | WS | Inventory | Master data | PO / BOL | Receiving / variances | Reports | Users |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| admin | write | write | write | write | write | write | yes | manage |
+| sales | write | no | stock read | no | read | no | no | no |
+| warehouse | ATW read | write | write | no | no | write | no | no |
+| accounting | read | read | stock read | no | read | read | yes | no |
+
+Sales orders commit quantity when opened, including when available is zero or short. Available = company on hand − committed and may be negative. Committed and incoming are company-wide. On hand is per warehouse. A receiving report posts good quantity only to its warehouse. Damaged quantity is quarantined. Incoming stock is outstanding quantity on posted, in-transit, arrived, and partially received bills of lading, after physical receipts (including damaged) and after accepted or resolved shortages.
+
+There is no per-user warehouse assignment. Stock transfers are not part of this release. Legacy balances on Main are not moved to Davao, Cagayan de Oro, Cebu, or Manila.
 
 ## Out of scope (v1)
 
-Payments/AR/credit limit, official letterhead and logo, warehouse picker / transfers, serial-level stock. Invoice, ATW/DR, and withdrawal slip can be printed from their stored snapshots.
+Payments/AR/credit limit, official letterhead and logo, stock transfers, and supplier-credit documents. Invoice, ATW/DR, and withdrawal slip can be printed from their stored snapshots. Proposal quotations, customer terms, and Excel import are not in this release.

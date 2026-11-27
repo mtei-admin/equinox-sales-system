@@ -5,12 +5,14 @@ import { AuthError, assertPermission } from "@/lib/auth/guards";
 import {
   cancelInventoryAdjustment,
   createInventoryAdjustment,
+  enrollInventoryUnit,
   postInventoryAdjustment,
   updateInventoryAdjustment,
 } from "@/lib/documents/rpc";
 import {
   cancelDocumentSchema,
   inventoryAdjustmentSchema,
+  enrollUnitSchema,
   postInventoryAdjustmentSchema,
   updateInventoryAdjustmentSchema,
 } from "@/lib/validation/schemas";
@@ -75,6 +77,7 @@ export async function saveInventoryAdjustment(formData: FormData): Promise<Adjus
   }
   try {
     const id = await createInventoryAdjustment({
+      warehouse_id: parsed.data.warehouse_id,
       remarks: parsed.data.remarks || "",
       lines: parsed.data.lines,
     });
@@ -127,4 +130,27 @@ export async function cancelInventoryAdjustmentAction(formData: FormData): Promi
   } catch (err) {
     return denied(err);
   }
+}
+
+export async function enrollInventoryUnitAction(formData: FormData): Promise<void> {
+  await assertPermission("inventory.write");
+  const parsed = enrollUnitSchema.safeParse({
+    item_id: formData.get("item_id"),
+    warehouse_id: formData.get("warehouse_id") || "",
+    identifier: formData.get("identifier"),
+    identifier_kind: formData.get("identifier_kind"),
+  });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Invalid unit");
+  }
+  await enrollInventoryUnit({
+    item_id: parsed.data.item_id,
+    warehouse_id: parsed.data.warehouse_id || null,
+    identifier: parsed.data.identifier,
+    identifier_kind: parsed.data.identifier_kind,
+  });
+  revalidatePath("/inventory/reconciliation");
+  revalidatePath("/inventory");
+  const { redirect } = await import("next/navigation");
+  redirect("/inventory/reconciliation");
 }

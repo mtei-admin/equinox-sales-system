@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader, SecondaryLink } from "@/components/page-header";
 import { WithdrawalSlipForm } from "@/components/forms/withdrawal-slip-form";
-import { getAtw, getWithdrawalSlip } from "@/lib/data/queries";
+import { getAtw, getWithdrawalSlip, listWarehouses } from "@/lib/data/queries";
 import { requirePermission } from "@/lib/auth/guards";
 
 export default async function EditWithdrawalSlipPage({ params }: { params: Promise<{ id: string }> }) {
@@ -11,6 +11,7 @@ export default async function EditWithdrawalSlipPage({ params }: { params: Promi
   if (!slip) notFound();
   if (slip.status !== "draft") redirect(`/withdrawal-slips/${slip.id}`);
   const atw = await getAtw(slip.atw_id);
+  const warehouses = await listWarehouses();
   const priceByItem = new Map((atw?.atw_document_items ?? []).map((line) => [line.id, line.unit_price]));
 
   return (
@@ -27,6 +28,8 @@ export default async function EditWithdrawalSlipPage({ params }: { params: Promi
         documentType={slip.document_type}
         customerName={slip.customer_name}
         remarks={slip.remarks ?? ""}
+        warehouseId={slip.warehouse_id}
+        warehouses={warehouses}
         lines={slip.withdrawal_slip_items.map((line) => ({
           atw_item_id: line.atw_item_id,
           description: line.description,

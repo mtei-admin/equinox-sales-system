@@ -20,6 +20,11 @@ import type {
   WsStatus,
 } from "@/types/database";
 import { ilikeContains, orIlike, type MasterListFilters, type UserListFilters } from "@/lib/master-data/filters";
+import {
+  companyStockFromWarehouseRows,
+  type CompanyStockRow,
+  type WarehouseOnHand,
+} from "@/lib/inventory/presentation";
 import { allocateSoLines, soHeaderRemaining, type InvoiceQtyConsumption } from "@/lib/sales-orders/allocation";
 import {
   allocateInvoiceLines,
@@ -515,8 +520,79 @@ export async function listInventoryStock() {
   }, [] as InventoryStockRow[]);
 }
 
-export async function getItemStock(itemId: string) {
+export async function listInventoryUnits() {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("inventory_units")
+      .select("id, item_id, warehouse_id, identifier, identifier_kind, state")
+      .order("identifier");
+    if (error) throw error;
+    return (data ?? []) as {
+      id: string;
+      item_id: string;
+      warehouse_id: string | null;
+      identifier: string;
+      identifier_kind: string;
+      state: string;
+    }[];
+  }, []);
+}
+
+export async function listWarehouses() {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase.from("warehouses").select("id, name, status").eq("status", "active").order("name");
+    if (error) throw error;
+    return (data ?? []) as { id: string; name: string; status: string }[];
+  }, [] as { id: string; name: string; status: string }[]);
+}
+
+export async function listWarehouseOnHand(): Promise<WarehouseOnHand[]> {
+  return safeQuery(async () => {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase.from("inventory_stock").select("warehouse_id, warehouse_name, item_id, on_hand");
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+      warehouse_id: String(row.warehouse_id),
+      warehouse_name: String(row.warehouse_name),
+      item_id: String(row.item_id),
+      on_hand: Number(row.on_hand),
+    }));
+  }, [] as WarehouseOnHand[]);
+}
+
+function mapCompanyRow(row: Record<string, unknown>): CompanyStockRow {
+  return {
+    item_id: String(row.item_id),
+    item_name: String(row.item_name),
+    brand: (row.brand as string | null) ?? null,
+    model: (row.model as string | null) ?? null,
+    barcode: (row.barcode as string | null) ?? null,
+    item_status: row.item_status as CompanyStockRow["item_status"],
+    on_hand: Number(row.on_hand),
+    incoming: Number(row.incoming ?? 0),
+    reserved: Number(row.reserved),
+    available: Number(row.available),
+    quarantine: Number(row.quarantine ?? 0),
+  };
+}
+
+export async function listCompanyStock(): Promise<CompanyStockRow[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase.from("inventory_company_stock").select("*").order("item_name");
+    if (!error && data) return data.map((row) => mapCompanyRow(row as Record<string, unknown>));
+  } catch {
+    // View arrives with the branch-warehouse migration.
+  }
   const rows = await listInventoryStock();
+  return companyStockFromWarehouseRows(rows);
+}
+
+export async function getItemStock(itemId: string) {
+  const rows = await listCompanyStock();
   return rows.find((row) => row.item_id === itemId) ?? null;
 }
 

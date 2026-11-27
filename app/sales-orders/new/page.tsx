@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { SalesOrderForm } from "@/components/forms/sales-order-form";
-import { listActiveUsers, listCustomers, listInventoryStock, listItems } from "@/lib/data/queries";
+import { listActiveUsers, listCompanyStock, listCustomers, listItems } from "@/lib/data/queries";
 import { requirePermission } from "@/lib/auth/guards";
 
 export default async function NewSalesOrderPage() {
@@ -9,7 +9,7 @@ export default async function NewSalesOrderPage() {
     listCustomers({ q: "", status: "active" }),
     listItems({ q: "", status: "active" }),
     listActiveUsers(),
-    listInventoryStock(),
+    listCompanyStock(),
   ]);
 
   return (

@@ -96,7 +96,7 @@ export const purchaseOrderSchema = z.object({
 
 export const billOfLadingLineSchema = z.object({
   purchase_order_item_id: z.string().uuid(),
-  shipped_qty: z.coerce.number().min(0),
+  shipped_qty: z.coerce.number().positive("Shipped quantity must be greater than 0"),
 });
 
 export const billOfLadingSchema = z.object({
@@ -107,8 +107,10 @@ export const billOfLadingSchema = z.object({
   carrier: z.string().trim().max(120).optional().or(z.literal("")),
   vessel_name: z.string().trim().max(120).optional().or(z.literal("")),
   voyage_number: z.string().trim().max(80).optional().or(z.literal("")),
-  container_number: z.string().trim().max(80).optional().or(z.literal("")),
-  seal_number: z.string().trim().max(80).optional().or(z.literal("")),
+  container_count: z.union([
+    z.literal(""),
+    z.coerce.number().int().positive("Number of containers must be greater than 0"),
+  ]),
   vehicle_plate_number: z.string().trim().max(40).optional().or(z.literal("")),
   origin: z.string().trim().max(160).optional().or(z.literal("")),
   destination: z.string().trim().max(160).optional().or(z.literal("")),
@@ -137,6 +139,9 @@ export const receivingReportSchema = z.object({
   gross_weight: z.string().optional().or(z.literal("")),
   tare_weight: z.string().optional().or(z.literal("")),
   weighbridge_ticket: z.string().trim().max(80).optional().or(z.literal("")),
+  container_number: z.string().trim().max(80).optional().or(z.literal("")),
+  seal_number: z.string().trim().max(80).optional().or(z.literal("")),
+  warehouse_id: z.string().uuid("Select a warehouse"),
   lines: z.array(receivingLineSchema).min(1),
 });
 
@@ -225,6 +230,7 @@ const withdrawalSlipLineSchema = z.object({
 
 export const withdrawalSlipSchema = z.object({
   atw_id: z.string().uuid("Select an ATW/DR"),
+  warehouse_id: z.string().uuid("Select a warehouse"),
   remarks: optionalText,
   lines: z.array(withdrawalSlipLineSchema).optional(),
 });
@@ -242,15 +248,25 @@ export const inventoryAdjustmentLineSchema = z.object({
 });
 
 export const inventoryAdjustmentSchema = z.object({
+  warehouse_id: z.string().uuid("Select a warehouse"),
   remarks: optionalText,
   lines: z.array(inventoryAdjustmentLineSchema).min(1, "At least one line is required"),
 });
 
-export const updateInventoryAdjustmentSchema = inventoryAdjustmentSchema.extend({
+export const updateInventoryAdjustmentSchema = z.object({
   id: z.string().uuid(),
+  remarks: optionalText,
+  lines: z.array(inventoryAdjustmentLineSchema).min(1, "At least one line is required"),
 });
 
 export const postInventoryAdjustmentSchema = z.object({
   id: z.string().uuid(),
   reason: z.string().trim().min(1, "Posting reason is required").max(500),
+});
+
+export const enrollUnitSchema = z.object({
+  item_id: z.string().uuid("Select an item"),
+  warehouse_id: z.string().uuid().optional().or(z.literal("")),
+  identifier: z.string().trim().min(1, "Serial or unit barcode is required").max(80),
+  identifier_kind: z.enum(["manufacturer_serial", "internal_barcode"]),
 });
