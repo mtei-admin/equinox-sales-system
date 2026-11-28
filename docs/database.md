@@ -13,7 +13,7 @@ See field map in the previous revision; locked choices:
 - `public.users` (not `profiles`): `username`, `full_name`, `department` (text), `role`, `status` (`active`/`inactive`). PK = `auth.users.id`. No password.
 - `customers`: `name`, `billing_address`, `tin_number`, `status`, `contact_person`, `contact_number`.
 - `items`: `name`, `description`, `brand`, `model`, `serial_no`, `barcode`. Catalog model (D7). No stock column on the item; on-hand is computed from `inventory_movements`.
-- `warehouses`: DAVAO (MAIN) is the default warehouse. The original Main row is inactive. `warehouse_id` is stored on inventory movements and on receiving reports and withdrawal slips.
+- `warehouses`: DAVAO (MAIN) is the default warehouse. The original Main row is inactive. `warehouse_id` is required on ATW/DR, receiving reports, withdrawal slips, adjustments, and movements. Sales orders and bills of lading do not drive stock by warehouse.
 - `inventory_adjustments` + `inventory_adjustment_items`: `ADJ-YYYY-NNNN`; status `draft` / `posted` / `cancelled`; line `direction` `increase` \| `decrease`.
 - `inventory_movements`: append-only signed quantities. Sources: `adjustment`, `withdrawal_slip`.
 - `sales_orders` + `sales_order_items`: snapshots; UOM and `unit_price` on the line; `amount = quantity * unit_price`; `total_amount = amount`.
@@ -84,13 +84,22 @@ Cannot cancel a parent that still has a non-cancelled child.
 
 ```
 on_hand(warehouse, item) = sum(inventory_movements.quantity)
-reserved(warehouse, item) =
+
+company_committed(item) =
   sum(SO line qty where SO status in open/closed)
   − sum(issued WS qty for those SO lines)
-available = on_hand − reserved
+
+warehouse_reserved(warehouse, item) =
+  sum(draft/released ATW line qty at that warehouse)
+  − sum(issued WS qty for those ATW lines)
+
+unallocated(item) = max(0, company_committed − sum(warehouse_reserved across active warehouses))
+
+company_available = company_on_hand − company_committed
+warehouse_available = on_hand − warehouse_reserved
 ```
 
-Draft SO does not reserve. Invoice/ATW/draft WS do not change on-hand. Issued WS inserts negative movements. Cancel issued WS inserts reversing positives. Posted decrease cannot exceed available. Opening an SO is rejected if required qty > available.
+Commitment **create** event: `open_sales_order` (even when available is short). Commitment **release** event: `issue_withdrawal_slip` (issued qty is subtracted once from company committed and from the ATW warehouse reserved). Cancel issued WS restores both. Cancel ATW/DR returns its qty to unallocated. Sales orders and bills of lading are warehouse-independent. Receiving reports and withdrawal slips each require exactly one warehouse. Incoming stock is company-wide. Draft SO does not commit. Invoice/ATW/draft WS do not change on-hand. Issued WS inserts negative movements. Cancel issued WS inserts reversing positives. Posted decrease cannot take warehouse available below zero.
 
 ## Indexes
 

@@ -65,15 +65,19 @@ begin
   ));
   begin
     perform public.open_sales_order(so_id);
-    perform public._phase_inv_record('qty', 'open SO blocked when available is 0', false, 'open succeeded');
+    perform public._phase_inv_record(
+      'qty', 'open SO commits when available is 0',
+      public.inventory_committed(bare) = 2
+        and public.inventory_unallocated(bare) = 2
+        and public.inventory_reserved(wh, bare) = 0,
+      format('committed=%s unallocated=%s reserved=%s',
+        public.inventory_committed(bare), public.inventory_unallocated(bare), public.inventory_reserved(wh, bare))
+    );
   exception
     when others then
-      perform public._phase_inv_record(
-        'qty', 'open SO blocked when available is 0',
-        sqlerrm ilike '%available%',
-        sqlerrm
-      );
+      perform public._phase_inv_record('qty', 'open SO commits when available is 0', false, sqlerrm);
   end;
+  perform public.cancel_sales_order(so_id, 'reset bare stock scenario');
 
   perform set_config('request.jwt.claim.sub', acct_id::text, true);
   begin
@@ -151,6 +155,7 @@ begin
   select id into invi_id from public.invoice_items where invoice_id = inv_id;
   atw_id := public.create_atw_document(jsonb_build_object(
     'invoice_id', inv_id,
+      'warehouse_id', public.default_warehouse_id(),
     'document_type', 'atw',
     'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', invi_id, 'quantity', 3))
   ));
@@ -190,6 +195,173 @@ begin
     on_hand = 5 and reserved = 3,
     format('on_hand=%s reserved=%s', on_hand, reserved)
   );
+
+  -- Multi-warehouse scenario: SO 10 → DAVAO 6 + CEBU 4 → issue 2 from DAVAO.
+  -- Under one-WS-full-copy, DAVAO's 6 is two ATW documents (2 + 4); the 2-unit slip
+  -- is the partial issue. Commitment release event is issue_withdrawal_slip.
+  declare
+    davao uuid;
+    cebu uuid;
+    multi_item uuid;
+    multi_so uuid;
+    multi_soi uuid;
+    multi_inv uuid;
+    multi_invi uuid;
+    atw_davao_partial uuid;
+    atw_davao_rest uuid;
+    atw_cebu uuid;
+    ws_partial uuid;
+    ws_again uuid;
+    davao_on_hand numeric;
+    cebu_on_hand numeric;
+    davao_reserved numeric;
+    cebu_reserved numeric;
+  begin
+    select id into davao from public.warehouses where name in ('DAVAO (MAIN)', 'DAVAO') order by case when name = 'DAVAO (MAIN)' then 0 else 1 end limit 1;
+    select id into cebu from public.warehouses where name = 'CEBU' limit 1;
+    insert into public.items (name, description, status)
+    values ('Multi warehouse item', 'DAVAO/CEBU scenario', 'active')
+    returning id into multi_item;
+
+    perform set_config('request.jwt.claim.sub', wh_id::text, true);
+    adj := public.create_inventory_adjustment(jsonb_build_object(
+      'warehouse_id', davao,
+      'remarks', 'DAVAO opening',
+      'lines', jsonb_build_array(jsonb_build_object('item_id', multi_item, 'quantity', 60, 'direction', 'increase'))
+    ));
+    perform public.post_inventory_adjustment(adj, 'DAVAO opening');
+    adj := public.create_inventory_adjustment(jsonb_build_object(
+      'warehouse_id', cebu,
+      'remarks', 'CEBU opening',
+      'lines', jsonb_build_array(jsonb_build_object('item_id', multi_item, 'quantity', 20, 'direction', 'increase'))
+    ));
+    perform public.post_inventory_adjustment(adj, 'CEBU opening');
+
+    perform set_config('request.jwt.claim.sub', sales_id::text, true);
+    multi_so := public.create_sales_order(jsonb_build_object(
+      'customer_id', cust,
+      'lines', jsonb_build_array(jsonb_build_object('item_id', multi_item, 'quantity', 10, 'unit_price', 25))
+    ));
+    perform public.open_sales_order(multi_so);
+    perform public._phase_inv_record(
+      'qty', 'SO 10 stays unallocated across warehouses',
+      public.inventory_committed(multi_item) = 10
+        and public.inventory_unallocated(multi_item) = 10
+        and public.inventory_reserved(davao, multi_item) = 0
+        and public.inventory_reserved(cebu, multi_item) = 0,
+      format('committed=%s unallocated=%s', public.inventory_committed(multi_item), public.inventory_unallocated(multi_item))
+    );
+
+    select id into multi_soi from public.sales_order_items where sales_order_id = multi_so;
+    multi_inv := public.create_invoice(jsonb_build_object(
+      'sales_order_id', multi_so,
+      'invoice_number', 'INV-MULTI-WH-1',
+      'lines', jsonb_build_array(jsonb_build_object('sales_order_item_id', multi_soi, 'quantity', 10, 'tax_amount', 0))
+    ));
+    perform public.post_invoice(multi_inv);
+    select id into multi_invi from public.invoice_items where invoice_id = multi_inv;
+
+    begin
+      perform public.create_atw_document(jsonb_build_object(
+        'invoice_id', multi_inv,
+        'document_type', 'atw',
+        'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', multi_invi, 'quantity', 2))
+      ));
+      perform public._phase_inv_record('rpc', 'ATW requires source warehouse', false, 'created without warehouse');
+    exception
+      when others then
+        perform public._phase_inv_record(
+          'rpc', 'ATW requires source warehouse',
+          sqlerrm ilike '%warehouse%',
+          sqlerrm
+        );
+    end;
+
+    atw_davao_partial := public.create_atw_document(jsonb_build_object(
+      'invoice_id', multi_inv,
+      'warehouse_id', davao,
+      'document_type', 'atw',
+      'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', multi_invi, 'quantity', 2))
+    ));
+    atw_davao_rest := public.create_atw_document(jsonb_build_object(
+      'invoice_id', multi_inv,
+      'warehouse_id', davao,
+      'document_type', 'atw',
+      'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', multi_invi, 'quantity', 4))
+    ));
+    atw_cebu := public.create_atw_document(jsonb_build_object(
+      'invoice_id', multi_inv,
+      'warehouse_id', cebu,
+      'document_type', 'atw',
+      'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', multi_invi, 'quantity', 4))
+    ));
+    perform public.release_atw_document(atw_davao_partial);
+    perform public.release_atw_document(atw_davao_rest);
+    perform public.release_atw_document(atw_cebu);
+
+    davao_reserved := public.inventory_reserved(davao, multi_item);
+    cebu_reserved := public.inventory_reserved(cebu, multi_item);
+    perform public._phase_inv_record(
+      'qty', 'ATW allocates 6 DAVAO and 4 CEBU once',
+      davao_reserved = 6
+        and cebu_reserved = 4
+        and public.inventory_committed(multi_item) = 10
+        and public.inventory_unallocated(multi_item) = 0,
+      format('davao=%s cebu=%s committed=%s unallocated=%s',
+        davao_reserved, cebu_reserved, public.inventory_committed(multi_item), public.inventory_unallocated(multi_item))
+    );
+
+    perform set_config('request.jwt.claim.sub', wh_id::text, true);
+    ws_partial := public.create_withdrawal_slip(jsonb_build_object(
+      'atw_id', atw_davao_partial,
+      'warehouse_id', davao
+    ));
+    perform public.issue_withdrawal_slip(ws_partial);
+
+    davao_on_hand := public.inventory_on_hand(davao, multi_item);
+    cebu_on_hand := public.inventory_on_hand(cebu, multi_item);
+    davao_reserved := public.inventory_reserved(davao, multi_item);
+    cebu_reserved := public.inventory_reserved(cebu, multi_item);
+    perform public._phase_inv_record(
+      'qty', 'issue 2 from DAVAO drops on-hand and releases commitment once',
+      davao_on_hand = 58
+        and cebu_on_hand = 20
+        and davao_reserved = 4
+        and cebu_reserved = 4
+        and public.inventory_committed(multi_item) = 8
+        and public.inventory_unallocated(multi_item) = 0,
+      format('davao_oh=%s cebu_oh=%s davao_rsv=%s cebu_rsv=%s committed=%s',
+        davao_on_hand, cebu_on_hand, davao_reserved, cebu_reserved, public.inventory_committed(multi_item))
+    );
+
+    perform public.cancel_withdrawal_slip(ws_partial, 'retest');
+    davao_on_hand := public.inventory_on_hand(davao, multi_item);
+    davao_reserved := public.inventory_reserved(davao, multi_item);
+    perform public._phase_inv_record(
+      'qty', 'cancel issued WS restores DAVAO allocation',
+      davao_on_hand = 60
+        and davao_reserved = 6
+        and public.inventory_committed(multi_item) = 10
+        and public.inventory_reserved(cebu, multi_item) = 4,
+      format('davao_oh=%s davao_rsv=%s committed=%s',
+        davao_on_hand, davao_reserved, public.inventory_committed(multi_item))
+    );
+
+    ws_again := public.create_withdrawal_slip(jsonb_build_object(
+      'atw_id', atw_davao_partial,
+      'warehouse_id', davao
+    ));
+    perform public.issue_withdrawal_slip(ws_again);
+    perform public._phase_inv_record(
+      'qty', 'repeated post after cancel releases once again',
+      public.inventory_on_hand(davao, multi_item) = 58
+        and public.inventory_reserved(davao, multi_item) = 4
+        and public.inventory_on_hand(cebu, multi_item) = 20
+        and public.inventory_reserved(cebu, multi_item) = 4
+        and public.inventory_committed(multi_item) = 8,
+      format('davao_oh=%s committed=%s', public.inventory_on_hand(davao, multi_item), public.inventory_committed(multi_item))
+    );
+  end;
 
   if exists (select 1 from public._phase_inv_results where passed = false) then
     raise exception 'inventory validation failed: %',

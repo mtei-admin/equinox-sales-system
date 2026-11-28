@@ -25,7 +25,7 @@
 - Reports remaining SO qty uses non-cancelled invoice qty; remaining invoice qty uses non-cancelled ATW/DR qty; ATW awaiting a slip has no non-cancelled withdrawal slip.
 - Dashboard views: admin full; sales documents + pending; warehouse ATW pending withdrawal + slips; accounting read-only overview without action links.
 - Only admin may reset a user password; new password must be at least 8 characters and match confirmation.
-- Opening a sales order is rejected when available qty is insufficient. Posted decrease adjustments cannot take available below reserved. Issuing a WS decreases on-hand; cancelling an issued WS restores it.
+- Opening a sales order commits quantity even when available is short. Posted decrease adjustments cannot take warehouse available below zero. Issuing a WS decreases on-hand and releases commitment once; cancelling an issued WS restores both. ATW/DR allocates the source warehouse; company committed counts allocated and unallocated once.
 - Invoice, ATW/DR, and withdrawal slip print use stored snapshot fields. Print routes use the same read permission as the document. Inventory summary print lists current on-hand, reserved, and available and uses inventory read.
 - Purchase order amount is ordered qty × unit cost. Remaining to ship and remaining to receive use the same rounding as money totals.
 - A purchase order is not completed while a shortage is unresolved. An accepted short can cover the gap. Excess and damaged quantities are separate from usable stock in the quantity helper.

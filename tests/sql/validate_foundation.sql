@@ -506,6 +506,7 @@ begin
 
   atw_id := public.create_atw_document(jsonb_build_object(
     'invoice_id', inv_id,
+      'warehouse_id', public.default_warehouse_id(),
     'document_type', 'atw',
     'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', invi_id, 'quantity', 10))
   ));

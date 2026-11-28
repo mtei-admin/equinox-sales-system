@@ -49,11 +49,14 @@ describe("warehouse allocation", () => {
   });
 
   it("keeps a partial issue from releasing the same commitment twice", () => {
-    const before = commitmentSplit(10, 4 + 3);
-    const afterIssue = commitmentSplit(7, 4);
-    expect(before.allocated + before.unallocated).toBe(10);
-    expect(afterIssue).toEqual({ committed: 7, allocated: 4, unallocated: 3 });
+    const before = commitmentSplit(10, 6 + 4);
+    const afterIssue = commitmentSplit(8, 4 + 4);
+    expect(before).toEqual({ committed: 10, allocated: 10, unallocated: 0 });
+    expect(afterIssue).toEqual({ committed: 8, allocated: 8, unallocated: 0 });
     expect(afterIssue.allocated + afterIssue.unallocated).toBe(afterIssue.committed);
+    expect(warehouseAvailable(60, 6)).toBe(54);
+    expect(warehouseAvailable(58, 4)).toBe(54);
+    expect(warehouseAvailable(20, 4)).toBe(16);
   });
 });
 

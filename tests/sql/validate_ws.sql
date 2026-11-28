@@ -103,6 +103,7 @@ begin
 
   draft_atw := public.create_atw_document(jsonb_build_object(
     'invoice_id', inv_id,
+      'warehouse_id', public.default_warehouse_id(),
     'document_type', 'atw',
     'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', invi_id, 'quantity', 4))
   ));
@@ -121,6 +122,7 @@ begin
 
   atw_doc := public.create_atw_document(jsonb_build_object(
     'invoice_id', inv_id,
+      'warehouse_id', public.default_warehouse_id(),
     'document_type', 'dr',
     'lines', jsonb_build_array(
       jsonb_build_object('invoice_item_id', invi_id, 'quantity', 6),
@@ -262,6 +264,7 @@ begin
   select id into invi_id from public.invoice_items where invoice_id = inv_id;
   conc_atw := public.create_atw_document(jsonb_build_object(
     'invoice_id', inv_id,
+      'warehouse_id', public.default_warehouse_id(),
     'document_type', 'atw',
     'lines', jsonb_build_array(jsonb_build_object('invoice_item_id', invi_id, 'quantity', 2))
   ));
