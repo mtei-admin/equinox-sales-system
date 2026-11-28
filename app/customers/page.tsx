@@ -28,7 +28,7 @@ export default async function CustomersPage({
       />
       <Card>
         <MasterListFilters action="/customers" q={filters.q} status={filters.status} />
-        <DataTable headers={["Name", "Contact", "TIN", "Status"]}>
+        <DataTable headers={["Name", "Contact", "Phone", "TIN", "Status"]}>
           {customers.map((customer) => (
             <tr key={customer.id} className="hover:bg-eq-mist/60">
               <td className="px-4 py-3">
@@ -37,6 +37,9 @@ export default async function CustomersPage({
                 </a>
               </td>
               <td className="px-4 py-3 text-eq-slate">{customer.contact_person ?? "—"}</td>
+              <td className="px-4 py-3 text-eq-slate">
+                {customer.contact_numbers?.length ? customer.contact_numbers.join(", ") : customer.contact_number ?? "—"}
+              </td>
               <td className="px-4 py-3 font-mono text-xs">{customer.tin_number ?? "—"}</td>
               <td className="px-4 py-3">
                 <StatusBadge status={customer.status} />

@@ -16,6 +16,27 @@ function emptyToNull(value: string | undefined) {
   return value ? value : null;
 }
 
+function contactList(data: { contact_numbers?: string[]; contact_number?: string }) {
+  const listed = (data.contact_numbers ?? []).map((value) => value.trim()).filter(Boolean);
+  if (listed.length > 0) return listed;
+  const single = data.contact_number?.trim();
+  return single ? [single] : [];
+}
+
+async function replaceContactNumbers(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  customerId: string,
+  numbers: string[],
+) {
+  const { error: deleteError } = await supabase.from("customer_contact_numbers").delete().eq("customer_id", customerId);
+  if (deleteError) return deleteError.message;
+  if (numbers.length === 0) return null;
+  const { error } = await supabase.from("customer_contact_numbers").insert(
+    numbers.map((contact_number, sort_order) => ({ customer_id: customerId, contact_number, sort_order })),
+  );
+  return error?.message ?? null;
+}
+
 export async function createCustomer(formData: FormData): Promise<MasterDataResult> {
   let profile;
   try {
@@ -29,24 +50,28 @@ export async function createCustomer(formData: FormData): Promise<MasterDataResu
     tin_number: formData.get("tin_number") || "",
     contact_person: formData.get("contact_person") || "",
     contact_number: formData.get("contact_number") || "",
+    contact_numbers: formData.getAll("contact_numbers").map(String),
     status: formData.get("status") || "active",
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid customer" };
   }
 
+  const numbers = contactList(parsed.data);
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.from("customers").insert({
+  const { data: created, error } = await supabase.from("customers").insert({
     name: parsed.data.name,
     billing_address: emptyToNull(parsed.data.billing_address),
     tin_number: emptyToNull(parsed.data.tin_number),
     contact_person: emptyToNull(parsed.data.contact_person),
-    contact_number: emptyToNull(parsed.data.contact_number),
+    contact_number: numbers[0] ?? null,
     status: parsed.data.status,
     created_by: profile.id,
     updated_by: profile.id,
-  });
+  }).select("id").single();
   if (error) return { ok: false, error: error.message };
+  const contactError = await replaceContactNumbers(supabase, created.id, numbers);
+  if (contactError) return { ok: false, error: contactError };
 
   revalidatePath("/customers");
   return { ok: true };
@@ -66,6 +91,7 @@ export async function updateCustomer(formData: FormData): Promise<MasterDataResu
     tin_number: formData.get("tin_number") || "",
     contact_person: formData.get("contact_person") || "",
     contact_number: formData.get("contact_number") || "",
+    contact_numbers: formData.getAll("contact_numbers").map(String),
     status: formData.get("status") || "active",
   });
   if (!id) return { ok: false, error: "Customer is required" };
@@ -73,6 +99,7 @@ export async function updateCustomer(formData: FormData): Promise<MasterDataResu
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid customer" };
   }
 
+  const numbers = contactList(parsed.data);
   const supabase = await createServerSupabaseClient();
   const { data, error } = await supabase
     .from("customers")
@@ -81,7 +108,7 @@ export async function updateCustomer(formData: FormData): Promise<MasterDataResu
       billing_address: emptyToNull(parsed.data.billing_address),
       tin_number: emptyToNull(parsed.data.tin_number),
       contact_person: emptyToNull(parsed.data.contact_person),
-      contact_number: emptyToNull(parsed.data.contact_number),
+      contact_number: numbers[0] ?? null,
       status: parsed.data.status,
       updated_by: profile.id,
     })
@@ -90,6 +117,8 @@ export async function updateCustomer(formData: FormData): Promise<MasterDataResu
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
   if (!data) return { ok: false, error: "Customer not found" };
+  const contactError = await replaceContactNumbers(supabase, id, numbers);
+  if (contactError) return { ok: false, error: contactError };
 
   revalidatePath("/customers");
   revalidatePath(`/customers/${id}`);

@@ -73,6 +73,22 @@ async function resolveAuditNames(
   };
 }
 
+function withContactNumbers<T extends { id: string; contact_number: string | null }>(
+  rows: T[],
+  contacts: { customer_id: string; contact_number: string; sort_order: number }[],
+) {
+  const grouped = new Map<string, string[]>();
+  for (const contact of [...contacts].sort((a, b) => a.sort_order - b.sort_order)) {
+    const list = grouped.get(contact.customer_id) ?? [];
+    list.push(contact.contact_number);
+    grouped.set(contact.customer_id, list);
+  }
+  return rows.map((row) => {
+    const contact_numbers = grouped.get(row.id) ?? (row.contact_number ? [row.contact_number] : []);
+    return { ...row, contact_numbers };
+  });
+}
+
 export async function listCustomers(filters: MasterListFilters = { q: "", status: "all" }) {
   return safeQuery(async () => {
     const supabase = await createServerSupabaseClient();
@@ -80,13 +96,26 @@ export async function listCustomers(filters: MasterListFilters = { q: "", status
     if (filters.status !== "all") query = query.eq("status", filters.status);
     const pattern = ilikeContains(filters.q);
     if (pattern) {
+      const { data: contactHits } = await supabase
+        .from("customer_contact_numbers")
+        .select("customer_id")
+        .ilike("contact_number", pattern);
+      const ids = [...new Set((contactHits ?? []).map((row) => String(row.customer_id)))];
+      const contactMatch = ids.length > 0 ? `,id.in.(${ids.join(",")})` : "";
       query = query.or(
-        orIlike(["name", "contact_person", "contact_number", "tin_number", "billing_address"], pattern),
+        `${orIlike(["name", "contact_person", "contact_number", "tin_number", "billing_address"], pattern)}${contactMatch}`,
       );
     }
     const { data, error } = await query;
     if (error) throw error;
-    return (data ?? []) as CustomerRow[];
+    const customers = (data ?? []) as CustomerRow[];
+    if (customers.length === 0) return customers;
+    const { data: contacts, error: contactError } = await supabase
+      .from("customer_contact_numbers")
+      .select("customer_id, contact_number, sort_order")
+      .in("customer_id", customers.map((row) => row.id));
+    if (contactError) return customers;
+    return withContactNumbers(customers, contacts ?? []);
   }, [] as CustomerRow[]);
 }
 
@@ -96,8 +125,13 @@ export async function getCustomer(id: string) {
     const { data } = await supabase.from("customers").select("*").eq("id", id).maybeSingle();
     if (!data) return null;
     const row = data as CustomerRow;
+    const { data: contacts } = await supabase
+      .from("customer_contact_numbers")
+      .select("customer_id, contact_number, sort_order")
+      .eq("customer_id", id);
+    const [customer] = withContactNumbers([row], contacts ?? []);
     const audit = await resolveAuditNames(row.created_by, row.updated_by);
-    return { ...row, ...audit };
+    return { ...customer, ...audit };
   }, null);
 }
 

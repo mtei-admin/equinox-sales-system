@@ -9,12 +9,14 @@ describe("master data schemas", () => {
       tin_number: "000-111",
       contact_person: "Ana",
       contact_number: "123",
+      contact_numbers: ["123", "456", ""],
       status: "inactive",
     });
     expect(parsed.success).toBe(true);
     if (parsed.success) {
       expect(parsed.data.name).toBe("Northwind");
       expect(parsed.data.status).toBe("inactive");
+      expect(parsed.data.contact_numbers).toEqual(["123", "456", ""]);
     }
   });
 

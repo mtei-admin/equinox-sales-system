@@ -151,6 +151,7 @@ export const customerSchema = z.object({
   tin_number: z.string().trim().max(40).optional().or(z.literal("")),
   contact_person: z.string().trim().max(120).optional().or(z.literal("")),
   contact_number: z.string().trim().max(40).optional().or(z.literal("")),
+  contact_numbers: z.array(z.string().trim().max(40, "Contact number is too long")).optional(),
   status: z.enum(["active", "inactive"]).default("active"),
 });
 

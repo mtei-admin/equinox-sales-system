@@ -13,7 +13,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   const fields = [
     ["TIN", customer.tin_number ?? "—"],
     ["Contact", customer.contact_person ?? "—"],
-    ["Phone", customer.contact_number ?? "—"],
+    ["Phone", customer.contact_numbers?.length ? customer.contact_numbers.join(", ") : customer.contact_number ?? "—"],
     ["Billing address", customer.billing_address ?? "—"],
   ];
 

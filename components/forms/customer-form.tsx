@@ -8,10 +8,17 @@ import { customerSchema } from "@/lib/validation/schemas";
 import { createCustomer, updateCustomer } from "@/lib/master-data/actions";
 import type { CustomerRow } from "@/types/database";
 
+function startingNumbers(customer?: CustomerRow) {
+  if (customer?.contact_numbers?.length) return customer.contact_numbers;
+  if (customer?.contact_number) return [customer.contact_number];
+  return [""];
+}
+
 export function CustomerForm({ customer }: { customer?: CustomerRow }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [numbers, setNumbers] = useState<string[]>(() => startingNumbers(customer));
   const editing = Boolean(customer);
 
   async function onSubmit(formData: FormData) {
@@ -22,7 +29,7 @@ export function CustomerForm({ customer }: { customer?: CustomerRow }) {
       billing_address: formData.get("billing_address") || "",
       tin_number: formData.get("tin_number") || "",
       contact_person: formData.get("contact_person") || "",
-      contact_number: formData.get("contact_number") || "",
+      contact_numbers: formData.getAll("contact_numbers").map(String),
       status: formData.get("status") || "active",
     });
     if (!parsed.success) {
@@ -50,12 +57,45 @@ export function CustomerForm({ customer }: { customer?: CustomerRow }) {
         <FormField label="Contact person">
           <input className={inputClassName} name="contact_person" defaultValue={customer?.contact_person ?? ""} />
         </FormField>
-        <FormField label="Contact number">
-          <input className={inputClassName} name="contact_number" defaultValue={customer?.contact_number ?? ""} />
-        </FormField>
         <FormField label="TIN number">
           <input className={inputClassName} name="tin_number" defaultValue={customer?.tin_number ?? ""} />
         </FormField>
+        <div className="sm:col-span-2">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-xs font-medium uppercase tracking-wide text-eq-slate">Contact numbers</span>
+            <button
+              type="button"
+              className="text-sm font-medium text-eq-navy"
+              onClick={() => setNumbers((current) => [...current, ""])}
+            >
+              + Add contact
+            </button>
+          </div>
+          <div className="space-y-2">
+            {numbers.map((number, index) => (
+              <div key={index} className="flex gap-2">
+                <input
+                  className={inputClassName}
+                  name="contact_numbers"
+                  value={number}
+                  aria-label={`Contact number ${index + 1}`}
+                  onChange={(event) =>
+                    setNumbers((current) => current.map((value, item) => (item === index ? event.target.value : value)))
+                  }
+                />
+                {numbers.length > 1 ? (
+                  <button
+                    type="button"
+                    className="shrink-0 text-sm text-rose-700"
+                    onClick={() => setNumbers((current) => current.filter((_, item) => item !== index))}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
         <FormField label="Status">
           <select className={inputClassName} name="status" defaultValue={customer?.status ?? "active"}>
             <option value="active">Active</option>

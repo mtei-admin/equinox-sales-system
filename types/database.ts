@@ -58,6 +58,7 @@ export type CustomerRow = {
   status: MasterStatus;
   contact_person: string | null;
   contact_number: string | null;
+  contact_numbers?: string[];
   created_by: string | null;
   created_at: string;
   updated_by: string | null;
