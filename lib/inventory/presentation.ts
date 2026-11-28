@@ -88,3 +88,56 @@ export function commitmentSplit(committed: number, allocated: number) {
     unallocated: roundQty(Math.max(committedQty - allocatedQty, 0)),
   };
 }
+
+/** Warehouse allocation still open after issued withdrawal quantity. Sign: positive allocated. */
+export function warehouseAllocatedRemaining(atwQty: number, issuedWsQty: number) {
+  return roundQty(Math.max(0, atwQty - issuedWsQty));
+}
+
+/**
+ * Company commitment still open after issued withdrawal quantity.
+ * Create event: open_sales_order. Release event: issue_withdrawal_slip
+ * (issued qty is subtracted once from both company committed and warehouse reserved).
+ */
+export function companyCommittedRemaining(openClosedSoQty: number, issuedWsQty: number) {
+  return roundQty(Math.max(0, openClosedSoQty - issuedWsQty));
+}
+
+export type BranchCommitmentSnapshot = {
+  company: ReturnType<typeof commitmentSplit> & { on_hand: number; available: number; incoming: number };
+  branches: Record<string, { on_hand: number; committed: number; available: number }>;
+};
+
+/** Build All-warehouses and per-branch stock figures for one item. Incoming stays company-wide. */
+export function branchCommitmentSnapshot(input: {
+  onHandByWarehouse: Record<string, number>;
+  allocatedByWarehouse: Record<string, number>;
+  committed: number;
+  incoming?: number;
+}): BranchCommitmentSnapshot {
+  const allocatedTotal = roundQty(
+    Object.values(input.allocatedByWarehouse).reduce((sum, qty) => sum + Number(qty), 0),
+  );
+  const companyOnHand = roundQty(
+    Object.values(input.onHandByWarehouse).reduce((sum, qty) => sum + Number(qty), 0),
+  );
+  const split = commitmentSplit(input.committed, allocatedTotal);
+  const branches: BranchCommitmentSnapshot["branches"] = {};
+  for (const [name, onHand] of Object.entries(input.onHandByWarehouse)) {
+    const committed = roundQty(input.allocatedByWarehouse[name] ?? 0);
+    branches[name] = {
+      on_hand: roundQty(onHand),
+      committed,
+      available: warehouseAvailable(onHand, committed),
+    };
+  }
+  return {
+    company: {
+      ...split,
+      on_hand: companyOnHand,
+      available: roundQty(companyOnHand - split.committed),
+      incoming: roundQty(input.incoming ?? 0),
+    },
+    branches,
+  };
+}

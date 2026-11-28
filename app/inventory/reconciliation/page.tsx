@@ -17,6 +17,7 @@ export default async function ReconciliationPage() {
     listItems({ q: "", status: "active" }),
   ]);
   const unmapped = onHand.filter((row) => isLegacyWarehouse(row.warehouse_name) && row.on_hand > 0);
+  const unassignedUnits = units.filter((unit) => !unit.warehouse_id);
   const enrolledByItem = new Map<string, number>();
   for (const unit of units) {
     enrolledByItem.set(unit.item_id, (enrolledByItem.get(unit.item_id) ?? 0) + 1);
@@ -43,7 +44,30 @@ export default async function ReconciliationPage() {
             );
           })}
         </DataTable>
-        {unmapped.length === 0 ? <EmptyState title="No Main balance" description="There is no on-hand quantity sitting on the legacy Main warehouse." /> : null}
+        {unmapped.length === 0 ? <EmptyState title="No Main balance" description="There is no on-hand quantity sitting on the legacy Main warehouse. Opening stock was moved to DAVAO (MAIN)." /> : null}
+      </Card>
+      <Card className="mb-4">
+        <h2 className="border-b border-eq-line px-4 py-3 text-sm font-semibold">Enrolled units without a warehouse</h2>
+        <p className="px-4 py-2 text-xs text-eq-slate">
+          These serials or unit barcodes still need a warehouse assignment during the count. Quantity on hand already
+          lives on DAVAO (MAIN) or another warehouse through the movement ledger.
+        </p>
+        <DataTable headers={["Item", "Identifier", "Kind"]}>
+          {unassignedUnits.map((unit) => {
+            const stockName = company.find((entry) => entry.item_id === unit.item_id)?.item_name;
+            const catalogName = items.find((entry) => entry.id === unit.item_id)?.name;
+            return (
+              <tr key={unit.id}>
+                <td className="px-4 py-3">{stockName ?? catalogName ?? unit.item_id}</td>
+                <td className="px-4 py-3 font-mono text-xs">{unit.identifier}</td>
+                <td className="px-4 py-3">{unit.identifier_kind === "internal_barcode" ? "Internal barcode" : "Manufacturer serial"}</td>
+              </tr>
+            );
+          })}
+        </DataTable>
+        {unassignedUnits.length === 0 ? (
+          <EmptyState title="No unassigned units" description="Every enrolled serial or unit barcode has a warehouse, or none are enrolled yet." />
+        ) : null}
       </Card>
       <Card className="mb-4">
         <h2 className="border-b border-eq-line px-4 py-3 text-sm font-semibold">Untagged units</h2>

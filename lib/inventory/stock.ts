@@ -6,6 +6,7 @@ export function onHandQty(movements: { quantity: number }[]) {
   return roundMoney(movements.reduce((sum, row) => sum + row.quantity, 0));
 }
 
+/** Company commitment remaining. Create: open_sales_order. Release: issue_withdrawal_slip. */
 export function reservedQty(openClosedSoQty: number, issuedWsQty: number) {
   return roundMoney(Math.max(0, openClosedSoQty - issuedWsQty));
 }
